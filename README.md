@@ -38,11 +38,15 @@ Additional features may be added in the future, such as inventory control, suppl
 ## Project Structure
 ```text
 agribusiness360-erp/
-├── backend/ # Spring Boot REST API
-├── frontend/ # Vue.js web application
-├── .gitignore # Ignored files and directories
-├── LICENSE # Project license
-├── README.md # Main documentation
+├── backend/ 
+├── frontend/
+├── database/
+│   ├── conceptual/
+│   ├── logical/
+│   └── physical/
+├── .gitignore 
+├── LICENSE 
+└── README.md # Main documentation
 ```
 
 ## Project Status

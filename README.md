@@ -1,5 +1,8 @@
 # Agribusiness360 ERP
 
+## Project Status
+**In development** (Project currently in its early stages, focusing on architecture definition and core implementation).
+
 ## Overview
 `Agribusiness360 ERP` is an agribusiness-oriented enterprise resource planning system developed as a `demonstrative and study project`, focusing on domain modeling, fullstack architecture, and software engineering best practices applied to the agricultural context.
 
@@ -48,9 +51,6 @@ agribusiness360-erp/
 ├── LICENSE 
 └── README.md # Main documentation
 ```
-
-## Project Status
-**In development** (Project currently in its early stages, focusing on architecture definition and core implementation).
 
 ## Developer
 **avieira-dev**

@@ -17,3 +17,8 @@ The focus is understanding the business before thinking about tables.
 
 ## Purpose of this directory
 To support learning the conceptual phase of data modeling, documenting the reasoning process and the evolution of domain understanding throughout the project.
+
+## Important
+This conceptual model is used exclusively for educational and learning purposes and may contain simplifications, inconsistencies, or conceptual inaccuracies that will be corrected during the project development process.
+
+The model was built using BRModelo Web, an educational tool widely used for teaching data modeling, reinforcing the pedagogical focus of this stage.

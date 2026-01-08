@@ -17,3 +17,8 @@ Here, the conceptual model is transformed into a **relational structure**, still
 
 ## Purpose of this directory
 To practice converting a conceptual model into a logical one, reinforcing relational modeling and data organization concepts.
+
+## Important
+This logical model is used exclusively for educational and learning purposes and may contain simplifications, inconsistencies, or conceptual inaccuracies that will be corrected during the project development process.
+
+The model was built using [diagrams](https://app.diagrams.net/).

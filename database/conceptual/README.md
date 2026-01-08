@@ -21,4 +21,4 @@ To support learning the conceptual phase of data modeling, documenting the reaso
 ## Important
 This conceptual model is used exclusively for educational and learning purposes and may contain simplifications, inconsistencies, or conceptual inaccuracies that will be corrected during the project development process.
 
-The model was built using BRModelo Web, an educational tool widely used for teaching data modeling, reinforcing the pedagogical focus of this stage.
+The model was built using [BRModelo Web](https://app.brmodeloweb.com/#!/). 

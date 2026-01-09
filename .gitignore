@@ -116,6 +116,7 @@ pnpm-debug.log*
 *.sql
 *.sqlite
 *.db
+!database/physical/db_agribusiness.sql
 
 
 # =====================================================

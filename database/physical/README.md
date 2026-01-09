@@ -12,3 +12,6 @@ Here, the logical model is converted into a **real implementation**, considering
 
 ## Purpose of this directory
 To practice implementing a real database from the logical model, reinforcing learning with SQL and DBMS concepts.
+
+## Important
+This physical model is used exclusively for educational and learning purposes and may contain simplifications, inconsistencies, or conceptual inaccuracies that will be corrected during the project development process.

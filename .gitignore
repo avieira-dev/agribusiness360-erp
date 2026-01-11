@@ -34,6 +34,8 @@ temp/
 # IntelliJ IDEA
 .idea/
 *.iml
+*.ipr
+*.iws
 
 # Visual Studio Code
 .vscode/
@@ -49,6 +51,8 @@ build/
 .classpath
 .project
 .settings/
+.springBeans
+.sts4-cache
 
 # Vim / miscellaneous editors
 *.swp
@@ -60,38 +64,45 @@ build/
 # Java / Spring Boot
 # =====================================================
 
-# Compiled classes and builds
-target/
+# Maven / Gradle builds
+backend/target
+backend/build
+
+# Compiled classes
 *.class
 
-# Maven wrapper
-.mvn/
-!mvnw
-!mvnw.cmd
+# Maven wrapper binary
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Allow wrapper scripts
+!backend/mvnw
+!backend/mvnw.cmd
 
 # Test reports
-surefire-reports/
+backend/**/surefire-reports/
+backend/**/failsafe-reports/
 
 
 # =====================================================
-# Sensitive Application Configuration
+# Spring Boot - Local / Sensitive Configs
 # =====================================================
 
-application-local.yml
-application-local.properties
-application-dev.yml
-application-dev.properties
+backend/src/main/resources/application.properties
+backend/src/main/resources/application-local.yml
+backend/src/main/resources/application-local.properties
+backend/src/main/resources/application-dev.yml
+backend/src/main/resources/application-dev.properties
 
 
 # =====================================================
-# Node / Frontend (Vue.js)
+# Frontend (Vue / Node)
 # =====================================================
 
 # Dependencies
-node_modules/
+frontend/node_modules/
 
 # Production build
-dist/
+frontend/dist/
 
 # Package manager logs
 npm-debug.log*
@@ -116,6 +127,8 @@ pnpm-debug.log*
 *.sql
 *.sqlite
 *.db
+
+# Explicit allow (documented exception)
 !database/physical/db_agribusiness.sql
 
 

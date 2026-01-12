@@ -46,6 +46,7 @@ nbbuild/
 nbdist/
 .nb-gradle/
 build/
+nbactions.xml
 
 # Eclipse
 .classpath

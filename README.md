@@ -52,6 +52,36 @@ agribusiness360-erp/
 └── README.md # Main documentation
 ```
 
+## Backend Configuration
+To run the backend application, you must manually create the application.properties file with your local database credentials.
+
+### File Location
+Create the file at the following path:
+```text
+backend/src/main/resources/application.properties
+```
+
+### Required configuration
+Add the following content to the file and replace USER and PASSWORD with your local MySQL credentials:
+```properties
+spring.application.name=backend
+spring.datasource.url=jdbc:mysql://localhost:3306/db_agribusiness
+spring.datasource.username=USER
+spring.datasource.password=PASSWORD
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+```
+
+### Important Notes
+- This file must not be committed to the repository.
+- Make sure application.properties is listed in .gitignore.
+- The database db_agribusiness must exist before running the application.
+- MySQL must be running locally.
+- On Linux/macOS, you may need to grant execute permission to the Maven Wrapper:
+```bash
+chmod +x mvnw
+```
+
 ## Developer
 **avieira-dev**
 

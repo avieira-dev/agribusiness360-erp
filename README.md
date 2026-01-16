@@ -88,3 +88,6 @@ chmod +x mvnw
 ## Observations
 - This project is under development.
 - Designed as a learning tool and a foundation for future expansion.
+
+## License
+MIT License

@@ -3,6 +3,17 @@
 ## Project Status
 **In development** (Project currently in its early stages, focusing on architecture definition and core implementation).
 
+## Table of Contents
+- [Overview](#overview)
+- [Project Object](#project-objective)
+- [Initial Scope (MVP)](#initial-scope-mvp)
+- [Technologies Used](#technologies-used)
+- [Project Structure](#project-structure)
+- [Backend Configuration](#backend-configuration)
+- [Developer](#developer)
+- [Observations](#observations)
+- [License](#license)
+
 ## Overview
 `Agribusiness360 ERP` is an agribusiness-oriented enterprise resource planning system developed as a `demonstrative and study project`, focusing on domain modeling, fullstack architecture, and software engineering best practices applied to the agricultural context.
 
@@ -90,4 +101,4 @@ chmod +x mvnw
 - Designed as a learning tool and a foundation for future expansion.
 
 ## License
-MIT License
+[MIT License](LICENSE)

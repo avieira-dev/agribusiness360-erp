@@ -130,7 +130,7 @@ pnpm-debug.log*
 *.db
 
 # Explicit allow (documented exception)
-!database/physical/db_agribusiness.sql
+!database/physical/db-agribusiness.sql
 
 
 # =====================================================

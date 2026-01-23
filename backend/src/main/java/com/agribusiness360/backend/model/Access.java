@@ -1,7 +1,6 @@
 package com.agribusiness360.backend.model;
 
 import java.io.Serializable;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;

@@ -41,7 +41,7 @@ public class Sale implements Serializable {
     @Column(name = "total_value", nullable = false, precision = 14, scale = 2)
     private BigDecimal totalValue = BigDecimal.ZERO;
 
-    @Column(name = "buyer_name", nullable = false)
+    @Column(name = "buyer_name", nullable = false, length = 100)
     private String buyerName;
 
     @Enumerated(EnumType.STRING)

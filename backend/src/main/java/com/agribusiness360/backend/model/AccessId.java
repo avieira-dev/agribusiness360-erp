@@ -1,5 +1,6 @@
 package com.agribusiness360.backend.model;
 
+import java.io.Serializable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccessId {
+public class AccessId implements Serializable {
 
     @Column(name = "user_id")
     private Integer userId;

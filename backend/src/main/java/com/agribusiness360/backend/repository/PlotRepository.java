@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import com.agribusiness360.backend.model.Plot;
+import com.agribusiness360.backend.model.SoilType;
 
 @Repository
 public interface PlotRepository extends JpaRepository<Plot, Integer> {
@@ -27,5 +28,5 @@ public interface PlotRepository extends JpaRepository<Plot, Integer> {
     /**
      * Search plots by soil type
      */
-    List<Plot> findBySoilType(String soilType);
+    List<Plot> findBySoilType(SoilType soilType);
 }

@@ -61,6 +61,25 @@ public class RuralPropertyService {
         return ruralPropertyRepository.save(ruralProperty);
     }
 
+    /** 
+     *  Updates an existing rural property
+     */
+    @Transactional
+    public RuralProperty updateRuralProperty(Integer id, RuralProperty details) {
+        RuralProperty ruralProperty = ruralPropertyRepository.findById(id)
+            .orElseThrow(()-> new RuntimeException("Rural property with the given ID does not exist."));
+
+        ruralPropertyRepository.findByName(details.getName()).ifPresent(existing -> {
+            if(!existing.getId().equals(id)) {
+                throw new RuntimeException("A rural property with this name is already registered.");
+            }
+        });
+
+        ruralProperty.setName(details.getName());
+
+        return ruralPropertyRepository.save(ruralProperty);
+    }
+
     /**
      *  Deletes the rural property associated with the given ID
      */

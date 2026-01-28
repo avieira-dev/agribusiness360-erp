@@ -68,6 +68,27 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /** 
+     *  Update an existing user
+     */
+    @Transactional
+    public User updateUser(Integer id, User userDetails) {
+        User user = userRepository.findById(id)
+            .orElseThrow(()-> new RuntimeException("User with the given ID does not exist."));
+
+        userRepository.findByEmail(userDetails.getEmail()).ifPresent(existingUser -> {
+            if(!existingUser.getId().equals(id)) {
+                throw new RuntimeException("This email is already in use by another user.");
+            }
+        });
+
+        user.setName(userDetails.getName());
+        user.setEmail(userDetails.getEmail());
+        user.setUsername(userDetails.getUsername());
+
+        return userRepository.save(user);
+    }
+
     /**
      *  Deletes the user with the given ID
      */

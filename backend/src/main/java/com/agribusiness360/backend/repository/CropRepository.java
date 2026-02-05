@@ -19,7 +19,7 @@ public interface CropRepository extends JpaRepository<Crop, Integer> {
     /**
      * Search for a crop by name
      */
-    List<Crop> findByName(String name);
+    List<Crop> findByNameContainingIgnoreCase(String name);
 
     /**
      * List crops by specific culture type

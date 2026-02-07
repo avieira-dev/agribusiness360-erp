@@ -66,14 +66,11 @@ nbactions.xml
 # =====================================================
 
 # Maven / Gradle builds
-backend/target
+**/target/
 backend/build
 
 # Compiled classes
 *.class
-
-# Maven wrapper binary
-backend/.mvn/wrapper/maven-wrapper.jar
 
 # Allow wrapper scripts
 !backend/mvnw
@@ -150,4 +147,5 @@ out/
 # =====================================================
 # Personal notes
 # =====================================================
+
 notes.txt

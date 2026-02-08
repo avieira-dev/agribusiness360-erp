@@ -144,8 +144,10 @@ coverage/
 out/
 .cache/
 
+
 # =====================================================
 # Personal notes
 # =====================================================
 
-notes.txt
+schedule.txt
+important.txt

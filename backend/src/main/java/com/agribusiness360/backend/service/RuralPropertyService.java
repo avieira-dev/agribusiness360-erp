@@ -1,5 +1,6 @@
 package com.agribusiness360.backend.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,10 @@ public class RuralPropertyService {
             throw new RuntimeException("This verification code is already in use by another property.");
         }
 
+        if(ruralProperty.getArea().compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException("The area cannot be negative.");
+        }
+
         return ruralPropertyRepository.save(ruralProperty);
     }
 
@@ -75,7 +80,14 @@ public class RuralPropertyService {
             }
         });
 
+        if(details.getArea().compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuntimeException("The area cannot be negative.");
+        }
+
         ruralProperty.setName(details.getName());
+        ruralProperty.setArea(details.getArea());
+        ruralProperty.setLocation(details.getLocation());
+        ruralProperty.setDescription(details.getDescription());
 
         return ruralPropertyRepository.save(ruralProperty);
     }

@@ -33,6 +33,14 @@ public class InventoryItemService {
         return inventoryItemRepository.findAll();
     }
 
+    /** 
+     *  Retrieves an item by ID
+     */
+    public InventoryItem getItemById(Integer itemId) {
+        return inventoryItemRepository.findById(itemId)
+            .orElseThrow(()-> new RuntimeException("No item found with the provided ID."));
+    }
+
     /**
      *  Retrieves items belonging to a specific property
      */

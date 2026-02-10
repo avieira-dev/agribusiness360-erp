@@ -44,6 +44,16 @@ public class InventoryItemController {
         return ResponseEntity.ok(items);
     }
 
+    /** 
+     *  Search for item by ID
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<InventoryItem> getItemById(@PathVariable Integer id) {
+        InventoryItem item = inventoryItemService.getItemById(id);
+
+        return ResponseEntity.ok(item);
+    }
+
     /**
      *  Search for all items of a specific property
      */

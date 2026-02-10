@@ -22,6 +22,14 @@ public class PlotService {
     }
 
     /**
+     *  Retrieves a plot by ID
+     */
+    public Plot getPlotById(Integer id) {
+        return plotRepository.findById(id)
+            .orElseThrow(()-> new RuntimeException("No plot found with this ID."));
+    }
+
+    /**
      *  Retrieves plots belonging to a specific property
      */
     public List<Plot> getPlotsByProperty(Integer propertyId) {

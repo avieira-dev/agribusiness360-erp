@@ -41,7 +41,26 @@ public class ProductService {
      *  Retrieves products with a base price within a specific range
      */
     public List<Product> getProductByBasePrice(BigDecimal minPrice, BigDecimal maxPrice) {
-        return productRepository.findByBasePriceBetween(minPrice, maxPrice);
+        if(minPrice == null || maxPrice == null) {
+            throw new RuntimeException("Price values cannot be null.");
+        }
+
+        if(minPrice.compareTo(maxPrice) == 0) {
+            throw new RuntimeException("The values cannot be the same.");
+        }
+
+        BigDecimal start;
+        BigDecimal end;
+
+        if(minPrice.compareTo(maxPrice) > 0) {
+            start = maxPrice;
+            end = minPrice;
+        } else {
+            start = minPrice;
+            end = maxPrice;
+        }
+
+        return productRepository.findByBasePriceBetween(start, end);
     }
 
     /**

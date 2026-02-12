@@ -50,7 +50,7 @@ public class CropService {
     }
 
     /**
-     *  Retrieves a crops by specific culture type
+     *  Retrieves a crops by culture type
      */
     public List<Crop> getCropsByCultureType(CultureType cultureType) {
         return cropRepository.findByCultureType(cultureType);

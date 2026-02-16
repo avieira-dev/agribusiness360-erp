@@ -93,14 +93,27 @@ backend/src/main/resources/application-dev.properties
 
 
 # =====================================================
-# Frontend (Vue / Node)
+# Frontend (Vue 3 / Vite / TypeScript / Node)
 # =====================================================
 
 # Dependencies
 frontend/node_modules/
+frontend/jspm_packages/
 
 # Production build
 frontend/dist/
+frontend/dist-ssr/
+
+# Vite / Tools Cache
+frontend/.vite/
+frontend/.cache/
+frontend/.eslintcache
+frontend/.stylelintcache
+
+# TypeScript incremental build info
+frontend/*.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
+frontend/tsconfig.node.tsbuildinfo
 
 # Package manager logs
 npm-debug.log*

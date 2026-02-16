@@ -73,13 +73,23 @@ backend/src/main/resources/application.properties
 ```
 
 ### Required configuration
-Add the following content to the file and replace USER and PASSWORD with your local MySQL credentials:
+To run the backend, you need to configure the database connection.
+
+1. Create a file named `application.properties` in `backend/src/main/resources/`.
+2. Add the following content and replace `USER` and `PASSWORD` with your local MySQL credentials:
+
 ```properties
 spring.application.name=backend
-spring.datasource.url=jdbc:mysql://localhost:3306/db_agribusiness
+spring.datasource.url=jdbc:mysql://localhost:3306/db_agribusiness?serverTimezone=UTC&useSSL=false
+
+# Replace USER and PASSWORD with your local credentials
 spring.datasource.username=USER
 spring.datasource.password=PASSWORD
+
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 ```
 

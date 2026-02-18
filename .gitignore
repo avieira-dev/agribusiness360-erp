@@ -1,166 +1,106 @@
 # =====================================================
 # Operating Systems (Windows, Linux, macOS)
 # =====================================================
-
-# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
-
-# Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
-
-# Linux
 *~
 .nfs*
-
-
-# =====================================================
-# Logs and Temporary Files
-# =====================================================
-
-*.log
-logs/
-tmp/
-temp/
-
 
 # =====================================================
 # IDEs and Editors
 # =====================================================
-
-# IntelliJ IDEA
 .idea/
 *.iml
 *.ipr
 *.iws
-
-# Visual Studio Code
-.vscode/
-
-# NetBeans
+.vscode/*
+!.vscode/extensions.json
 nbproject/private/
 nbbuild/
 nbdist/
 .nb-gradle/
 build/
 nbactions.xml
-
-# Eclipse
 .classpath
 .project
 .settings/
 .springBeans
 .sts4-cache
-
-# Vim / miscellaneous editors
 *.swp
 *.swo
 *.bak
-
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
 # =====================================================
-# Java / Spring Boot
+# Logs and Temporary Files
 # =====================================================
+*.log
+logs/
+tmp/
+temp/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Maven / Gradle builds
+# =====================================================
+# Java / Spring Boot (Backend)
+# =====================================================
 **/target/
-backend/build
-
-# Compiled classes
+backend/build/
 *.class
 
-# Allow wrapper scripts
+# Wrapper scripts (Importante manter para CI/CD)
 !backend/mvnw
 !backend/mvnw.cmd
 
-# Test reports
+# Reports e Configs Sensíveis
 backend/**/surefire-reports/
 backend/**/failsafe-reports/
-
-
-# =====================================================
-# Spring Boot - Local / Sensitive Configs
-# =====================================================
-
 backend/src/main/resources/application.properties
 backend/src/main/resources/application-local.yml
 backend/src/main/resources/application-local.properties
 backend/src/main/resources/application-dev.yml
 backend/src/main/resources/application-dev.properties
 
-
 # =====================================================
-# Frontend (Vue 3 / Vite / TypeScript / Node)
+# Vue 3 / Vite (Frontend)
 # =====================================================
-
-# Dependencies
 frontend/node_modules/
-frontend/jspm_packages/
-
-# Production build
 frontend/dist/
 frontend/dist-ssr/
-
-# Vite / Tools Cache
 frontend/.vite/
 frontend/.cache/
+frontend/*.tsbuildinfo
 frontend/.eslintcache
 frontend/.stylelintcache
-
-# TypeScript incremental build info
-frontend/*.tsbuildinfo
-frontend/tsconfig.tsbuildinfo
-frontend/tsconfig.node.tsbuildinfo
-
-# Package manager logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
+frontend/*.local
 
 # =====================================================
-# Environment Variables
+# Environment, Databases and Coverage
 # =====================================================
-
 .env
 .env.*
 !.env.example
-
-
-# =====================================================
-# Databases and Dumps
-# =====================================================
-
 *.sql
 *.sqlite
 *.db
-
-# Explicit allow (documented exception)
-!database/physical/db-agribusiness.sql
-
-
-# =====================================================
-# Test Coverage
-# =====================================================
-
 coverage/
-
-
-# =====================================================
-# Other Generated Artifacts
-# =====================================================
-
 out/
 .cache/
 
+# Documented exception for the database
+!database/physical/db-agribusiness.sql
 
 # =====================================================
 # Personal notes
 # =====================================================
-
 schedule.txt
-important.txt

@@ -62,7 +62,7 @@ backend/build/
 !backend/mvnw
 !backend/mvnw.cmd
 
-# Reports e Configs Sensíveis
+# Reports e Configs Sensitive
 backend/**/surefire-reports/
 backend/**/failsafe-reports/
 backend/src/main/resources/application.properties

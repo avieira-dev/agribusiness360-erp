@@ -58,7 +58,7 @@ lerna-debug.log*
 backend/build/
 *.class
 
-# Wrapper scripts (Importante manter para CI/CD)
+# Wrapper scripts
 !backend/mvnw
 !backend/mvnw.cmd
 

@@ -1,7 +1,6 @@
 package com.agribusiness360.backend.model;
 
 public enum UserRole {
-    
     PROPRIETARIO,
     GERENTE,
     LAVRADOR,

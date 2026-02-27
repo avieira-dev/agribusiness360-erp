@@ -1,9 +1,15 @@
 package com.agribusiness360.backend.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import com.agribusiness360.backend.dto.UserRequestDTO;
+import com.agribusiness360.backend.dto.UserResponseDTO;
+import com.agribusiness360.backend.exception.BusinessException;
+import com.agribusiness360.backend.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.agribusiness360.backend.model.User;
+import com.agribusiness360.backend.model.UserRole;
 import com.agribusiness360.backend.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,79 +20,145 @@ public class UserService {
     private UserRepository userRepository;
 
     /**
+     *  Convert entity to ResponseDTO
+     */
+    private UserResponseDTO toResponse(User user) {
+        return new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getCode(),
+                user.getUserRole(),
+                user.getCreatedAt()
+        );
+    }
+
+    /**
+     *  Convert DTO to entity
+     */
+    private User toEntity(UserRequestDTO dto) {
+        User user = new User();
+
+        user.setName(dto.name());
+        user.setEmail(dto.email());
+        user.setPasswordHash(dto.password());
+        user.setUsername(dto.username());
+        user.setCode(dto.code());
+
+        if(dto.userRole() != null) {
+            user.setUserRole(dto.userRole());
+        }
+
+        return user;
+    }
+
+    /**
      *  Retrieves all registered users
      */
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves the user identified by the given ID
      */
-    public User getUserById(Integer id) {
-        return userRepository.findById(id)
-            .orElseThrow(()-> new RuntimeException("User with the given ID does not exist."));
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUserById(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("No user found with this ID."));
+
+        return toResponse(user);
     }
 
     /**
      *  Retrieves the user with the given username
      */
-    public User getByUsername(String username) {
-        return userRepository.findByUsername(username)
-            .orElseThrow(()-> new RuntimeException("User with the given username does not exist."));
+    @Transactional(readOnly = true)
+    public UserResponseDTO getByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(()-> new ResourceNotFoundException("No user found with this name."));
+
+        return toResponse(user);
     }
 
     /**
      *  Retrieves the user with the given email
      */
-    public User getByEmail(String email) {
-        return userRepository.findByEmail(email)
-            .orElseThrow(()-> new RuntimeException("User with the given email does not exist."));
+    @Transactional(readOnly = true)
+    public UserResponseDTO getByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundException("User with the given email does not exist."));
+
+        return toResponse(user);
     }
 
     /**
      *  Retrieves the user with the given unique code
      */
-    public User getByCode(String code) {
-        return userRepository.findByCode(code)
-            .orElseThrow(()-> new RuntimeException("User with the given code does not exist."));
+    @Transactional(readOnly = true)
+    public UserResponseDTO getByCode(String code) {
+        User user = userRepository.findByCode(code)
+                .orElseThrow(()-> new ResourceNotFoundException("User with the given code does not exist."));
+
+        return toResponse(user);
     }
 
     /**
      *  Saves a new user
      */
     @Transactional
-    public User saveUser(User user) {
-        if(userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("User with the given email already exists.");
+    public UserResponseDTO saveUser(UserRequestDTO dto) {
+        if(userRepository.findByEmail(dto.email()).isPresent()) {
+            throw new BusinessException("This email is already registered.");
+        } else if(userRepository.findByCode(dto.code()).isPresent()) {
+            throw new BusinessException("This code already belongs to another user.");
+        } else if(userRepository.findByUsername(dto.username()).isPresent()) {
+            throw new BusinessException("A user with this username already exists");
         }
 
-        if(userRepository.findByCode(user.getCode()).isPresent()) {
-            throw new RuntimeException("User with the given code already exists.");
-        }
+        User user = toEntity(dto);
 
-        return userRepository.save(user);
+        return toResponse(userRepository.save(user));
     }
 
     /** 
      *  Update an existing user
      */
     @Transactional
-    public User updateUser(Integer id, User userDetails) {
-        User user = userRepository.findById(id)
-            .orElseThrow(()-> new RuntimeException("User with the given ID does not exist."));
+    public UserResponseDTO updateUser(Integer id, UserRequestDTO dto) {
+        User userExisting = userRepository.findById(id)
+                        .orElseThrow(()-> new ResourceNotFoundException("User with the given ID does not exist."));
 
-        userRepository.findByEmail(userDetails.getEmail()).ifPresent(existingUser -> {
+        userRepository.findByEmail(dto.email()).ifPresent(existingUser -> {
             if(!existingUser.getId().equals(id)) {
-                throw new RuntimeException("This email is already in use by another user.");
+                throw new BusinessException("This email is already in use by another user.");
             }
         });
 
-        user.setName(userDetails.getName());
-        user.setEmail(userDetails.getEmail());
-        user.setUsername(userDetails.getUsername());
+        userRepository.findByUsername(dto.username()).ifPresent(existingUser -> {
+            if(!existingUser.getId().equals(id)) {
+                throw new BusinessException("This username is already being used by another user.");
+            }
+        });
 
-        return userRepository.save(user);
+        userRepository.findByCode(dto.code()).ifPresent(existingUser -> {
+            if(!existingUser.getId().equals(id)) {
+                throw new BusinessException("This code is already being used by another user.");
+            }
+        });
+
+        userExisting.setName(dto.name());
+        userExisting.setUsername(dto.username());
+        userExisting.setEmail(dto.email());
+        userExisting.setCode(dto.code());
+
+        if(dto.userRole() != null) {
+            userExisting.setUserRole(dto.userRole());
+        }
+
+        return toResponse(userRepository.save(userExisting));
     }
 
     /**
@@ -94,10 +166,14 @@ public class UserService {
      */
     @Transactional
     public void deleteUser(Integer id) {
-        if(!userRepository.existsById(id)) {
-            throw new RuntimeException("User with the given ID does not exist.");
+        User userExisting = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No user found with this ID."));
+
+        if(UserRole.ADMINISTRADOR.equals(userExisting.getUserRole())) {
+            throw new BusinessException("For security reasons, users with the ADMINISTRATOR profile " +
+                    "cannot be removed via the standard API");
         }
 
-        userRepository.deleteById(id);
+        userRepository.delete(userExisting);
     }
 }

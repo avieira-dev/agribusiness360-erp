@@ -1,6 +1,9 @@
 package com.agribusiness360.backend.controller;
 
 import java.util.List;
+
+import com.agribusiness360.backend.dto.UserRequestDTO;
+import com.agribusiness360.backend.dto.UserResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.agribusiness360.backend.model.User;
 import com.agribusiness360.backend.service.UserService;
 
 @RestController
@@ -36,27 +38,23 @@ public class UserController {
      *  Search for all users
      */
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     /**
      *  Search for a user by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Integer id) {
-        User user = userService.getUserById(id);
-
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Integer id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     /**
      *  Search for a user by username
      */
     @GetMapping("/search-username")
-    public ResponseEntity<User> getUserByUsername(@RequestParam String username) {
+    public ResponseEntity<UserResponseDTO> getUserByUsername(@RequestParam String username) {
         return ResponseEntity.ok(userService.getByUsername(username));
     }
 
@@ -64,7 +62,7 @@ public class UserController {
      *  Search for a user by email
      */
     @GetMapping("/search-email")
-    public ResponseEntity<User> getUserByEmail(@RequestParam String email) {
+    public ResponseEntity<UserResponseDTO> getUserByEmail(@RequestParam String email) {
         return ResponseEntity.ok(userService.getByEmail(email));
     }
 
@@ -72,7 +70,7 @@ public class UserController {
      *  Search for a user by code
      */
     @GetMapping("/search-code")
-    public ResponseEntity<User> getUserByCode(@RequestParam String code) {
+    public ResponseEntity<UserResponseDTO> getUserByCode(@RequestParam String code) {
         return ResponseEntity.ok(userService.getByCode(code));
     }
 
@@ -80,8 +78,8 @@ public class UserController {
      *  Create a new user
      */
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User savedUser = userService.saveUser(user);
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO dto) {
+        UserResponseDTO savedUser = userService.saveUser(dto);
 
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
@@ -90,8 +88,8 @@ public class UserController {
      *  Update an existing user
      */
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody User userDetails) {
-        return ResponseEntity.ok(userService.updateUser(id, userDetails));
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Integer id, @RequestBody UserRequestDTO dto) {
+        return ResponseEntity.ok(userService.updateUser(id, dto));
     }
 
     /**

@@ -1,12 +1,15 @@
 package com.agribusiness360.backend.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.agribusiness360.backend.dto.AccessRequestDTO;
+import com.agribusiness360.backend.dto.AccessResponseDTO;
+import com.agribusiness360.backend.exception.ResourceNotFoundException;
 import com.agribusiness360.backend.model.Access;
 import com.agribusiness360.backend.model.AccessId;
-import com.agribusiness360.backend.model.PermissionLevel;
 import com.agribusiness360.backend.model.RuralProperty;
 import com.agribusiness360.backend.model.User;
 import com.agribusiness360.backend.repository.AccessRepository;
@@ -26,77 +29,99 @@ public class AccessService {
     private RuralPropertyRepository ruralPropertyRepository;
 
     /**
+     *  Convert entity to DTO
+     */
+    private AccessResponseDTO toResponse(Access access) {
+        return new AccessResponseDTO(
+            access.getUser().getId(),
+            access.getUser().getName(),
+            access.getRuralProperty().getId(),
+            access.getRuralProperty().getName(),
+            access.getPermissionLevel()
+        );
+    }
+
+    /**
+     *  Convert DTO to entity
+     */
+    private Access toEntity(AccessRequestDTO dto) {
+        Access access = new Access();
+
+        AccessId accessId = new AccessId(dto.userId(), dto.propertyId());
+        access.setId(accessId);
+
+        User user = userRepository.findById(dto.userId())
+            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
+        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("Property not found."));
+
+        access.setUser(user);
+        access.setRuralProperty(property);
+        access.setPermissionLevel(dto.permissionLevel());
+
+        return access;
+    }
+
+    /**
      *  Retrieves all access permissions in the system
      */
-    public List<Access> getAllAccesses() {
-        return accessRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<AccessResponseDTO> getAllAccesses() {
+        return accessRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves all accesses for a specific user
      */
-    public List<Access> getAccessesByUser(Integer id) {
-        return accessRepository.findByIdUserId(id);
+    @Transactional(readOnly = true)
+    public List<AccessResponseDTO> getAccessesByUser(Integer id) {
+        return accessRepository.findByIdUserId(id).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves all accesses for a specific rural property
      */
-    public List<Access> getAccessesByRuralProperty(Integer id) {
-        return accessRepository.findByIdPropertyId(id);
+    @Transactional(readOnly = true)
+    public List<AccessResponseDTO> getAccessesByRuralProperty(Integer id) {
+        return accessRepository.findByIdPropertyId(id).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Grants a new access permission
      */
     @Transactional
-    public Access grantAccess(Integer userId, Integer propertyId, PermissionLevel permissionLevel) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(()-> new RuntimeException("User not found with the given ID."));
+    public AccessResponseDTO grantAccess(AccessRequestDTO dto) {
+        Access newAccess = toEntity(dto);
 
-        RuralProperty ruralProperty = ruralPropertyRepository.findById(propertyId)
-            .orElseThrow(()-> new RuntimeException("Rural property not found with the given ID."));
-
-        AccessId accessId = new AccessId(userId, propertyId);
-
-        if(accessRepository.existsById(accessId)) {
-            throw new RuntimeException("This user already has an access level defined for this property.");
-        }
-
-        Access newAccess = new Access();
-
-        newAccess.setId(accessId);
-        newAccess.setUser(user);
-        newAccess.setRuralProperty(ruralProperty);
-        newAccess.setPermissionLevel(permissionLevel != null ? permissionLevel : PermissionLevel.LEITOR);
-
-        return accessRepository.save(newAccess);
+        return toResponse(accessRepository.save(newAccess));
     }
 
     /**
      *  Updates the permission level of an existing access
      */
     @Transactional
-    public Access updatePermission(Integer idUser, Integer idProperty, PermissionLevel newLevel) {
-        AccessId accessId = new AccessId(idUser, idProperty);
+    public AccessResponseDTO updatePermission(AccessRequestDTO dto) {
+        AccessId accessId = new AccessId(dto.userId(), dto.propertyId());
 
-        Access access = accessRepository.findById(accessId)
-            .orElseThrow(()-> new RuntimeException("Access record not found to update."));
+        if(!accessRepository.existsById(accessId)) {
+            throw new ResourceNotFoundException("This access permission does not exist.");
+        }
 
-        access.setPermissionLevel(newLevel);
+        Access updateAccess = toEntity(dto);
 
-        return accessRepository.save(access);
+        return toResponse(accessRepository.save(updateAccess));
     }
 
     /**
      *  Revokes access (deletes the association)
      */
     @Transactional
-    public void revokeAccess(Integer idUser, Integer idProperty) {
-        AccessId accessId = new AccessId(idUser, idProperty);
+    public void revokeAccess(AccessRequestDTO dto) {
+        AccessId accessId = new AccessId(dto.userId(), dto.propertyId());
 
         if(!accessRepository.existsById(accessId)) {
-            throw new RuntimeException("Cannot revoke: Access record not found.");
+            throw new ResourceNotFoundException("This access permission does not exist.");
         }
 
         accessRepository.deleteById(accessId);

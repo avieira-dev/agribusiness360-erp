@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.agribusiness360.backend.model.RuralProperty;
+import com.agribusiness360.backend.dto.RuralPropertyRequestDTO;
+import com.agribusiness360.backend.dto.RuralPropertyResponseDTO;
 import com.agribusiness360.backend.service.RuralPropertyService;
 
 @RestController
@@ -36,27 +37,23 @@ public class RuralPropertyController {
      *  Search for all properties
      */
     @GetMapping
-    public ResponseEntity<List<RuralProperty>> getAllProperties() {
-        List<RuralProperty> properties = ruralPropertyService.getAllRuralProperties();
-
-        return ResponseEntity.ok(properties);
+    public ResponseEntity<List<RuralPropertyResponseDTO>> getAllProperties() {
+        return ResponseEntity.ok(ruralPropertyService.getAllRuralProperties());
     }
 
     /**
      *  Search for a property by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<RuralProperty> getPropertyById(@PathVariable Integer id) {
-        RuralProperty property = ruralPropertyService.getRuralPropertyId(id);
-
-        return ResponseEntity.ok(property);
+    public ResponseEntity<RuralPropertyResponseDTO> getPropertyById(@PathVariable Integer id) {
+        return ResponseEntity.ok(ruralPropertyService.getRuralPropertyId(id));
     }
 
     /**
      *  Search for a property by name
      */
     @GetMapping("/search-name")
-    public ResponseEntity<RuralProperty> getPropertyByName(@RequestParam String name) {
+    public ResponseEntity<RuralPropertyResponseDTO> getPropertyByName(@RequestParam String name) {
         return ResponseEntity.ok(ruralPropertyService.getByName(name));
     }
 
@@ -64,7 +61,7 @@ public class RuralPropertyController {
      *  Search for a property by code
      */
     @GetMapping("/search-code")
-    public ResponseEntity<RuralProperty> getPropertyByCode(@RequestParam String code) {
+    public ResponseEntity<RuralPropertyResponseDTO> getPropertyByCode(@RequestParam String code) {
         return ResponseEntity.ok(ruralPropertyService.getByCode(code));
     }
 
@@ -72,18 +69,18 @@ public class RuralPropertyController {
      *  Create a new property
      */
     @PostMapping
-    public ResponseEntity<RuralProperty> createProperty(@RequestBody RuralProperty property) {
-        RuralProperty ruralProperty = ruralPropertyService.saveRuralProperty(property);
+    public ResponseEntity<RuralPropertyResponseDTO> createProperty(@RequestBody RuralPropertyRequestDTO dto) {
+        RuralPropertyResponseDTO savedProperty = ruralPropertyService.saveRuralProperty(dto);
 
-        return new ResponseEntity<>(ruralProperty, HttpStatus.CREATED);
+        return new ResponseEntity<>(savedProperty, HttpStatus.CREATED);
     }
 
     /**
      *  Update an existing property
      */
     @PutMapping("/{id}")
-    public ResponseEntity<RuralProperty> updateProperty(@PathVariable Integer id, @RequestBody RuralProperty propertyDetails) {
-        return ResponseEntity.ok(ruralPropertyService.updateRuralProperty(id, propertyDetails));
+    public ResponseEntity<RuralPropertyResponseDTO> updateProperty(@PathVariable Integer id, @RequestBody RuralPropertyRequestDTO dto) {
+        return ResponseEntity.ok(ruralPropertyService.updateRuralProperty(id, dto));
     }
 
     /**
@@ -92,7 +89,6 @@ public class RuralPropertyController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProperty(@PathVariable Integer id) {
         ruralPropertyService.deleteRuralProperty(id);
-
         return ResponseEntity.noContent().build();
     }
 }

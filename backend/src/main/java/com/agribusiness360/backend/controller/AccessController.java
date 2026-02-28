@@ -2,6 +2,7 @@ package com.agribusiness360.backend.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,11 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.agribusiness360.backend.model.Access;
-import com.agribusiness360.backend.model.PermissionLevel;
+import com.agribusiness360.backend.dto.AccessRequestDTO;
+import com.agribusiness360.backend.dto.AccessResponseDTO;
 import com.agribusiness360.backend.service.AccessService;
 
 @RestController
@@ -35,54 +36,50 @@ public class AccessController {
      *  Search for all access permissions
      */
     @GetMapping
-    public ResponseEntity<List<Access>> getAllAccess() {
-        List<Access> accesses = accessService.getAllAccesses();
-
-        return ResponseEntity.ok(accesses);
+    public ResponseEntity<List<AccessResponseDTO>> getAllAccess() {
+        return ResponseEntity.ok(accessService.getAllAccesses());
     }
 
     /**
      *  Search a specific user’s access
      */
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<Access>> getAccessByUser(@PathVariable Integer id) {
-        List<Access> accesses = accessService.getAccessesByUser(id);
-
-        return ResponseEntity.ok(accesses);
+    public ResponseEntity<List<AccessResponseDTO>> getAccessByUser(@PathVariable Integer id) {
+        return ResponseEntity.ok(accessService.getAccessesByUser(id));
     }
 
     /**
      *  Search the access levels of users for a specific property
      */
     @GetMapping("/property/{id}")
-    public ResponseEntity<List<Access>> getAccessByProperty(@PathVariable Integer id) {
-        List<Access> accesses = accessService.getAccessesByRuralProperty(id);
-
-        return ResponseEntity.ok(accesses);
+    public ResponseEntity<List<AccessResponseDTO>> getAccessByProperty(@PathVariable Integer id) {
+        return ResponseEntity.ok(accessService.getAccessesByRuralProperty(id));
     }
 
     /**
      *  Grants a new access permission
      */
-    @PostMapping("/grant-access")
-    public ResponseEntity<Access> grantAccess(@RequestParam Integer userId, @RequestParam Integer propertyId, @RequestParam PermissionLevel level) {
-        return ResponseEntity.ok(accessService.grantAccess(userId, propertyId, level));
+    @PostMapping
+    public ResponseEntity<AccessResponseDTO> grantAccess(@RequestBody AccessRequestDTO dto) {
+        AccessResponseDTO access = accessService.grantAccess(dto);
+
+        return new ResponseEntity<>(access, HttpStatus.CREATED);
     }
 
     /**
      *  Updates the permission level of an existing access
      */
-    @PutMapping("/update-permission")
-    public ResponseEntity<Access> updatePermission(@RequestParam Integer userId, @RequestParam Integer propertyId, @RequestParam PermissionLevel newLevel) {
-        return ResponseEntity.ok(accessService.updatePermission(userId, propertyId, newLevel));
+    @PutMapping
+    public ResponseEntity<AccessResponseDTO> updatePermission(@RequestBody AccessRequestDTO dto) {
+        return ResponseEntity.ok(accessService.updatePermission(dto));
     }
 
     /**
      *  Revokes access
      */
-    @DeleteMapping("/revoke-access")
-    public ResponseEntity<Void> revokeAccess(@RequestParam Integer userId, @RequestParam Integer propertyId) {
-        accessService.revokeAccess(userId, propertyId);
+    @DeleteMapping
+    public ResponseEntity<Void> revokeAccess(@RequestBody AccessRequestDTO dto) {
+        accessService.revokeAccess(dto);
 
         return ResponseEntity.noContent().build();
     }

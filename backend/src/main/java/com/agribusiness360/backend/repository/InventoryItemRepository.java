@@ -1,6 +1,8 @@
 package com.agribusiness360.backend.repository;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import com.agribusiness360.backend.model.InventoryItem;
@@ -29,4 +31,14 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, In
      * Filter item by current status
      */
     List<InventoryItem> findByItemStatus(ItemStatus itemStatus);
+
+    /**
+     *  Search for an item by name within a specific property
+     */
+    Optional<InventoryItem> findByNameAndRuralPropertyId(String name, Integer propertyId);
+
+    /**
+     *  Search for a item from a specific property
+     */
+    boolean existsByNameAndRuralPropertyId(String name, Integer propertyId);
 }

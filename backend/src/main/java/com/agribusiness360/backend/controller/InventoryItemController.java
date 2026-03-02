@@ -1,7 +1,8 @@
 package com.agribusiness360.backend.controller;
 
 import java.util.List;
-import com.agribusiness360.backend.model.InventoryItem;
+import com.agribusiness360.backend.dto.InventoryItemRequestDTO;
+import com.agribusiness360.backend.dto.InventoryItemResponseDTO;
 import com.agribusiness360.backend.model.ItemCategory;
 import com.agribusiness360.backend.model.ItemStatus;
 import com.agribusiness360.backend.service.InventoryItemService;
@@ -38,78 +39,66 @@ public class InventoryItemController {
      *  Search all items
      */
     @GetMapping
-    public ResponseEntity<List<InventoryItem>> getAllItems() {
-        List<InventoryItem> items = inventoryItemService.getAllItems();
-
-        return ResponseEntity.ok(items);
+    public ResponseEntity<List<InventoryItemResponseDTO>> getAllItems() {
+        return ResponseEntity.ok(inventoryItemService.getAllItems());
     }
 
     /** 
      *  Search for item by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<InventoryItem> getItemById(@PathVariable Integer id) {
-        InventoryItem item = inventoryItemService.getItemById(id);
-
-        return ResponseEntity.ok(item);
+    public ResponseEntity<InventoryItemResponseDTO> getItemById(@PathVariable Integer id) {
+        return ResponseEntity.ok(inventoryItemService.getItemById(id));
     }
 
     /**
      *  Search for all items of a specific property
      */
     @GetMapping("/property/{id}")
-    public ResponseEntity<List<InventoryItem>> getAllItemsByProperty(@PathVariable Integer id) {
-        List<InventoryItem> items = inventoryItemService.getItemsByProperty(id);
-
-        return ResponseEntity.ok(items);
+    public ResponseEntity<List<InventoryItemResponseDTO>> getAllItemsByProperty(@PathVariable Integer id) {
+        return ResponseEntity.ok(inventoryItemService.getItemsByProperty(id));
     }
 
     /**
      *  Search for all items by name
      */
     @GetMapping("/item-name")
-    public ResponseEntity<List<InventoryItem>> getItemsByName(@RequestParam String itemName) {
-        List<InventoryItem> items = inventoryItemService.getItemByName(itemName);
-
-        return ResponseEntity.ok(items);
+    public ResponseEntity<List<InventoryItemResponseDTO>> getItemsByName(@RequestParam String itemName) {
+        return ResponseEntity.ok(inventoryItemService.getItemByName(itemName));
     }
 
     /**
      *  Search for all items by category
      */
     @GetMapping("/item-category")
-    public ResponseEntity<List<InventoryItem>> getItemsByCategory(@RequestParam ItemCategory itemCategory) {
-        List<InventoryItem> items = inventoryItemService.getItemByCategory(itemCategory);
-
-        return ResponseEntity.ok(items);
+    public ResponseEntity<List<InventoryItemResponseDTO>> getItemsByCategory(@RequestParam ItemCategory itemCategory) {
+        return ResponseEntity.ok(inventoryItemService.getItemByCategory(itemCategory));
     }
 
     /**
      *  Search for all items by status
      */
     @GetMapping("/item-status")
-    public ResponseEntity<List<InventoryItem>> getItemsByStatus(@RequestParam ItemStatus itemStatus) {
-        List<InventoryItem> items = inventoryItemService.getItemByStatus(itemStatus);
-
-        return ResponseEntity.ok(items);
+    public ResponseEntity<List<InventoryItemResponseDTO>> getItemsByStatus(@RequestParam ItemStatus itemStatus) {
+        return ResponseEntity.ok(inventoryItemService.getItemByStatus(itemStatus));
     }
 
     /**
      *  Create a new item
      */
     @PostMapping
-    public ResponseEntity<InventoryItem> createItem(@RequestBody InventoryItem item) {
-        InventoryItem createdItem = inventoryItemService.saveItem(item);
+    public ResponseEntity<InventoryItemResponseDTO> createItem(@RequestBody InventoryItemRequestDTO dto) {
+        InventoryItemResponseDTO itemCreated = inventoryItemService.saveItem(dto);
 
-        return new ResponseEntity<>(createdItem, HttpStatus.CREATED);
+        return new ResponseEntity<>(itemCreated, HttpStatus.CREATED);
     }
 
     /**
      *  Update an existing item
      */
     @PutMapping("/{id}")
-    public ResponseEntity<InventoryItem> updateItem(@PathVariable Integer id, @RequestBody InventoryItem itemDetails) {
-        return ResponseEntity.ok(inventoryItemService.updateItem(id, itemDetails));
+    public ResponseEntity<InventoryItemResponseDTO> updateItem(@PathVariable Integer id, @RequestBody InventoryItemRequestDTO dto) {
+        return ResponseEntity.ok(inventoryItemService.updateItem(id, dto));
     }
 
     /**

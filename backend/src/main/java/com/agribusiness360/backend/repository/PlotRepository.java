@@ -29,4 +29,19 @@ public interface PlotRepository extends JpaRepository<Plot, Integer> {
      * Search plots by soil type
      */
     List<Plot> findBySoilType(SoilType soilType);
+
+    /**
+     *  Search for a plot by name within a specific property
+     */
+    Optional<Plot> findByNameAndRuralPropertyId(String name, Integer propertyId);
+
+    /**
+     *  Search for a plot of a specific property
+     */
+    boolean existsByNameAndRuralPropertyId(String name, Integer propertyId);
+
+    /**
+     *  Search for a plot by its code within a specific property
+     */
+    boolean existsByCodeAndRuralPropertyId(String code, Integer propertyId);
 }

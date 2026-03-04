@@ -2,6 +2,11 @@ package com.agribusiness360.backend.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
+import com.agribusiness360.backend.dto.ProductRequestDTO;
+import com.agribusiness360.backend.dto.ProductResponseDTO;
+import com.agribusiness360.backend.exception.BusinessException;
+import com.agribusiness360.backend.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,73 +21,98 @@ public class ProductService {
     private ProductRepository productRepository;
 
     /**
+     *  Convert entity to DTO
+     */
+    private ProductResponseDTO toResponse(Product product) {
+        return new ProductResponseDTO(
+                product.getId(),
+                product.getProductStatus(),
+                product.getBasePrice()
+        );
+    }
+
+    /**
+     *  Convert DTO to entity
+     */
+    private Product toEntity(ProductRequestDTO dto) {
+        Product product = new Product();
+
+        if(dto.basePrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Base price cannot be negative.");
+        }
+
+        product.setProductStatus(dto.productStatus());
+        product.setBasePrice(dto.basePrice());
+
+        return product;
+    }
+
+    /**
      *  Retrieves all products
      */
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getAllProducts() {
+        return productRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves products by status
      */
-    public List<Product> getProductsByStatus(ProductStatus productStatus) {
-        return productRepository.findByProductStatus(productStatus);
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getProductsByStatus(ProductStatus productStatus) {
+        return productRepository.findByProductStatus(productStatus).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves a product by its ID
     */
-   public Product getProductById(Integer id) {
-        return productRepository.findById(id)
-            .orElseThrow(()-> new RuntimeException("Product not found with supplier ID."));
+    @Transactional(readOnly = true)
+   public ProductResponseDTO getProductById(Integer id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("There is no product registered with the provided ID."));
+
+        return toResponse(product);
    }
 
     /**
      *  Retrieves products with a base price within a specific range
      */
-    public List<Product> getProductByBasePrice(BigDecimal minPrice, BigDecimal maxPrice) {
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getProductByBasePrice(BigDecimal minPrice, BigDecimal maxPrice) {
         if(minPrice == null || maxPrice == null) {
-            throw new RuntimeException("Price values cannot be null.");
+            throw new BusinessException("Price values cannot be null.");
         }
 
-        if(minPrice.compareTo(maxPrice) == 0) {
-            throw new RuntimeException("The values cannot be the same.");
-        }
+        BigDecimal start = minPrice.min(maxPrice);
+        BigDecimal end = minPrice.max(maxPrice);
 
-        BigDecimal start;
-        BigDecimal end;
-
-        if(minPrice.compareTo(maxPrice) > 0) {
-            start = maxPrice;
-            end = minPrice;
-        } else {
-            start = minPrice;
-            end = maxPrice;
-        }
-
-        return productRepository.findByBasePriceBetween(start, end);
+        return productRepository.findByBasePriceBetween(start, end).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Saves a new product
      */
     @Transactional
-    public Product saveProduct(Product product) {
-        return productRepository.save(product);
+    public ProductResponseDTO saveProduct(ProductRequestDTO dto) {
+        Product newProduct = toEntity(dto);
+
+        return toResponse(productRepository.save(newProduct));
     }
 
     /**
      *  Update existing product
      */
     @Transactional
-    public Product updateProduct(Integer id, Product details) {
-        Product product = productRepository.findById(id)
-            .orElseThrow(()-> new RuntimeException("There is no product registered with the provided ID."));
+    public ProductResponseDTO updateProduct(Integer id, ProductRequestDTO dto) {
+        if(!productRepository.existsById(id)) {
+            throw new ResourceNotFoundException("There is no product registered with the provided ID.");
+        }
 
-        product.setBasePrice(details.getBasePrice());
-        product.setProductStatus(details.getProductStatus());
+        Product updatedProduct = toEntity(dto);
 
-        return productRepository.save(product);
+        updatedProduct.setId(id);
+
+        return toResponse(productRepository.save(updatedProduct));
     }
 
     /**
@@ -91,7 +121,7 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Integer id) {
         if(!productRepository.existsById(id)) {
-            throw new RuntimeException("Cannot delete: Product record not found.");
+            throw new ResourceNotFoundException("Cannot delete: Product record not found.");
         }
 
         productRepository.deleteById(id);

@@ -47,7 +47,7 @@ Additional features may be added in the future, such as inventory control, suppl
 - Vue.js
 - Vue Router
 - Axios
-- Bootstrap
+- Tailwind CSS
 
 ## Project Structure
 ```text

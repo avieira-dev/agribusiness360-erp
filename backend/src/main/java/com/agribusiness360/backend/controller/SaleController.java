@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.agribusiness360.backend.dto.SaleRequestDTO;
+import com.agribusiness360.backend.dto.SaleResponseDTO;
 import com.agribusiness360.backend.model.PaymentMethod;
-import com.agribusiness360.backend.model.Sale;
 import com.agribusiness360.backend.service.SaleService;
 
 @RestController
@@ -38,68 +39,56 @@ public class SaleController {
      *  Search all sales
      */
     @GetMapping
-    public ResponseEntity<List<Sale>> getAllSales() {
-        List<Sale> sales = saleService.getAllSales();
-
-        return ResponseEntity.ok(sales);
+    public ResponseEntity<List<SaleResponseDTO>> getAllSales() {
+        return ResponseEntity.ok(saleService.getAllSales());
     }
 
     /**
      *  Search sales by property ID
      */
     @GetMapping("/property/{id}")
-    public ResponseEntity<List<Sale>> getSalesByPropertyId(@PathVariable Integer id) {
-        List<Sale> sales = saleService.getSalesByProperty(id);
-
-        return ResponseEntity.ok(sales);
+    public ResponseEntity<List<SaleResponseDTO>> getSalesByPropertyId(@PathVariable Integer id) {
+        return ResponseEntity.ok(saleService.getSalesByProperty(id));
     }
 
     /**
      *  Search for a sale by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Sale> getSaleById(@PathVariable Integer id) {
-        Sale sale = saleService.getSaleById(id);
-
-        return ResponseEntity.ok(sale);
+    public ResponseEntity<SaleResponseDTO> getSaleById(@PathVariable Integer id) {
+        return ResponseEntity.ok(saleService.getSaleById(id));
     }
 
     /**
      *  Search sales within a specific period
      */
     @GetMapping("/period")
-    public ResponseEntity<List<Sale>> getSalesByPeriod(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate) {
-        List<Sale> sales = saleService.getSalesByPeriod(startDate, endDate);
-
-        return ResponseEntity.ok(sales);
+    public ResponseEntity<List<SaleResponseDTO>> getSalesByPeriod(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate) {
+        return ResponseEntity.ok(saleService.getSalesByPeriod(startDate, endDate));
     }
 
     /**
      *  Search sales by buyer name
      */
     @GetMapping("/buyer-name")
-    public ResponseEntity<List<Sale>> getSalesByBuyerName(@RequestParam String buyerName) {
-        List<Sale> sales = saleService.getSalesByBuyerName(buyerName);
-
-        return ResponseEntity.ok(sales);
+    public ResponseEntity<List<SaleResponseDTO>> getSalesByBuyerName(@RequestParam String buyerName) {
+        return ResponseEntity.ok(saleService.getSalesByBuyerName(buyerName));
     }
 
     /**
      *  Search sales by payment method
     */
    @GetMapping("/payment-method")
-   public ResponseEntity<List<Sale>> getSalesByPaymentMethod(@RequestParam PaymentMethod paymentMethod) {
-        List<Sale> sales = saleService.getSalesByPaymentMethod(paymentMethod);
-
-        return ResponseEntity.ok(sales);
+   public ResponseEntity<List<SaleResponseDTO>> getSalesByPaymentMethod(@RequestParam PaymentMethod paymentMethod) {
+        return ResponseEntity.ok(saleService.getSalesByPaymentMethod(paymentMethod));
    }
 
    /**
     *   Save new sale
     */
    @PostMapping
-   public ResponseEntity<Sale> saveSale(@RequestBody Sale sale) {
-        Sale newSale = saleService.saveSale(sale);
+   public ResponseEntity<SaleResponseDTO> saveSale(@RequestBody SaleRequestDTO dto) {
+        SaleResponseDTO newSale = saleService.saveSale(dto);
 
         return new ResponseEntity<>(newSale, HttpStatus.CREATED);
    }
@@ -108,8 +97,8 @@ public class SaleController {
     *   Update sale
     */
    @PutMapping("{id}")
-   public ResponseEntity<Sale> updateSale(@PathVariable Integer id, @RequestBody Sale saleDetails) {
-        Sale updatedSale = saleService.updateSale(id, saleDetails);
+   public ResponseEntity<SaleResponseDTO> updateSale(@PathVariable Integer id, @RequestBody SaleRequestDTO dto) {
+        SaleResponseDTO updatedSale = saleService.updateSale(id, dto);
 
         return ResponseEntity.ok(updatedSale);
    }

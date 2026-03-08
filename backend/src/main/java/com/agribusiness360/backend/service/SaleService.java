@@ -46,15 +46,8 @@ public class SaleService {
     /**
      *  Convert DTO to entity
      */
-    private Sale toEntity(SaleRequestDTO dto) {
+    private Sale toEntity(SaleRequestDTO dto, RuralProperty property) {
         Sale newSale = new Sale();
-
-        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
-                .orElseThrow(() -> new ResourceNotFoundException("No properties were found with the provided ID."));
-
-        if(dto.totalValue() != null && dto.totalValue().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("The total value of a sale cannot be negative.");
-        }
 
         LocalDateTime dateToSave = (dto.saleDate() == null) ? LocalDateTime.now() : dto.saleDate();
 
@@ -66,6 +59,15 @@ public class SaleService {
         newSale.setNotes(dto.notes());
 
         return newSale;
+    }
+
+    /**
+     *   Business validations for creation and updating
+     */
+    private void validateSaleData(SaleRequestDTO dto) {
+        if(dto.totalValue() != null && dto.totalValue().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("The total value of a sale cannot be negative.");
+        }
     }
 
     /**
@@ -128,7 +130,12 @@ public class SaleService {
      */
     @Transactional
     public SaleResponseDTO saveSale(SaleRequestDTO dto) {
-        Sale sale = toEntity(dto);
+        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("No properties were found with the provided ID."));
+
+        validateSaleData(dto);
+
+        Sale sale = toEntity(dto,property);
 
         return toResponse(saleRepository.save(sale));
     }
@@ -138,11 +145,17 @@ public class SaleService {
      */
     @Transactional
     public SaleResponseDTO updateSale(Integer id, SaleRequestDTO dto) {
-        if(!saleRepository.existsById(id)) {
-            throw new ResourceNotFoundException("No sales found with that ID.");
+        Sale existingSale = saleRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("No sales found with that ID."));
+
+        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("No properties were found with the provided ID."));
+
+        if(!existingSale.getRuralProperty().getId().equals(property.getId())) {
+            throw new BusinessException("The rural property linked to the sale cannot be modified.");
         }
 
-        Sale sale = toEntity(dto);
+        Sale sale = toEntity(dto, property);
 
         sale.setId(id);
 
@@ -155,7 +168,7 @@ public class SaleService {
     @Transactional
     public void deleteSale(Integer id) {
         if(!saleRepository.existsById(id)) {
-            throw new RuntimeException("Cannot delete: Sale record not found.");
+            throw new ResourceNotFoundException("Cannot delete: Sale record not found.");
         }
 
         saleRepository.deleteById(id);

@@ -3,12 +3,18 @@ package com.agribusiness360.backend.service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.agribusiness360.backend.dto.CropRequestDTO;
+import com.agribusiness360.backend.dto.CropResponseDTO;
+import com.agribusiness360.backend.exception.BusinessException;
+import com.agribusiness360.backend.exception.ResourceNotFoundException;
 import com.agribusiness360.backend.model.Crop;
 import com.agribusiness360.backend.model.CropStatus;
 import com.agribusiness360.backend.model.CultureType;
+import com.agribusiness360.backend.model.Plot;
 import com.agribusiness360.backend.repository.CropRepository;
 import com.agribusiness360.backend.repository.PlotRepository;
 
@@ -21,105 +27,191 @@ public class CropService {
     @Autowired
     private PlotRepository plotRepository;
 
-    @Autowired
-    private ProductService productService;
+    /**
+     *  Convert entity to DTO
+    */
+   private CropResponseDTO toResponse(Crop crop) {
+        return new CropResponseDTO(
+            crop.getId(),
+            crop.getBasePrice(),
+            crop.getProductStatus(),
+            crop.getPlot().getId(),
+            crop.getPlot().getName(),
+            crop.getName(),
+            crop.getExpectedYield(),
+            crop.getCultureType(),
+            crop.getSpecificCulture(),
+            crop.getStatus(),
+            crop.getPlantDate(),
+            crop.getHarvestDate(),
+            crop.getCreatedAt()
+        );
+   }
+
+   /** 
+    *   Convert DTO to entity
+    */
+   private Crop toEntity(CropRequestDTO dto, Plot plot) {
+        Crop crop = new Crop();
+
+        crop.setPlot(plot);
+        crop.setBasePrice(dto.basePrice());
+        crop.setProductStatus(dto.productStatus());
+        crop.setName(dto.name());
+        crop.setExpectedYield(dto.expectedYield());
+        crop.setCultureType(dto.cultureType());
+        crop.setSpecificCulture(dto.specificCulture());
+        crop.setStatus(dto.status());
+        crop.setPlantDate(dto.plantDate());
+        crop.setHarvestDate(dto.harvestDate());
+
+        return crop;
+   }
+
+   /**
+    *   Business validations for creation and updating
+    */
+   private void validateCropData(CropRequestDTO dto) {
+        if(dto.specificCulture() == null || dto.specificCulture().isBlank()) {
+            throw new BusinessException("The field of specific culture cannot be empty.");
+        }
+
+        if(dto.expectedYield() != null && dto.expectedYield().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Expected yield cannot be negative.");
+        } 
+
+        if(dto.plantDate() != null && dto.harvestDate() != null) {
+            if(dto.harvestDate().isBefore(dto.plantDate())) {
+                throw new BusinessException("Harvest date cannot be before plant date.");
+            }
+        }
+
+        if(dto.basePrice() != null && dto.basePrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("The base price cannot be negative.");
+        }
+   }
 
     /**
      *  Retrieves all crops
      */
-    public List<Crop> getAllCrops() {
-        return cropRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<CropResponseDTO> getAllCrops() {
+        return cropRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves a crops of a specific plot
      */
-    public List<Crop> getCropsByPlotId(Integer plotId) {
-        if(!plotRepository.findById(plotId).isPresent()) {
-            throw new RuntimeException("No plot found with the ID provided.");
+    @Transactional(readOnly = true)
+    public List<CropResponseDTO> getCropsByPlotId(Integer plotId) {
+        if(!plotRepository.existsById(plotId)) {
+            throw new ResourceNotFoundException("No plot found with the ID provided.");
         }
 
-        return cropRepository.findByPlotId(plotId);
+        return cropRepository.findByPlotId(plotId).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves a crops by specific name
      */
-    public List<Crop> getCropByName(String name) {
-        return cropRepository.findByNameContainingIgnoreCase(name);
+    @Transactional(readOnly = true)
+    public List<CropResponseDTO> getCropByName(String name) {
+        if(cropRepository.findByNameContainingIgnoreCase(name).isEmpty()) {
+            throw new BusinessException("No crops found with this name.");
+        }
+
+        return cropRepository.findByNameContainingIgnoreCase(name).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves a crops by culture type
      */
-    public List<Crop> getCropsByCultureType(CultureType cultureType) {
-        return cropRepository.findByCultureType(cultureType);
+    @Transactional(readOnly = true)
+    public List<CropResponseDTO> getCropsByCultureType(CultureType cultureType) {
+        if(cropRepository.findByCultureType(cultureType).isEmpty()) {
+            throw new BusinessException("No plantations were found with that type of crop.");
+        }
+
+        return cropRepository.findByCultureType(cultureType).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves a crops by specific culture
      */
-    public List<Crop> getCropsSpecificCulture(String specificCulture) {
-        return cropRepository.findBySpecificCultureContainingIgnoreCase(specificCulture);
+    @Transactional(readOnly = true)
+    public List<CropResponseDTO> getCropsSpecificCulture(String specificCulture) {
+        if(cropRepository.findBySpecificCultureContainingIgnoreCase(specificCulture).isEmpty()) {
+            throw new BusinessException("No plantations were found with that specific type of crop.");
+        }
+
+        return cropRepository.findBySpecificCultureContainingIgnoreCase(specificCulture).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves a crops by status
      */
-    public List<Crop> getCropsByStatus(CropStatus cropStatus) {
-        return cropRepository.findByStatus(cropStatus);
+    @Transactional(readOnly = true)
+    public List<CropResponseDTO> getCropsByStatus(CropStatus cropStatus) {
+        if(cropRepository.findByStatus(cropStatus).isEmpty()) {
+            throw new BusinessException("No crops found with this status.");
+        }
+
+        return cropRepository.findByStatus(cropStatus).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves crops within the specified date range
      */
-    public List<Crop> getCropsByPlantDateBetween(LocalDate starDate, LocalDate endDate) {
-        return cropRepository.findByPlantDateBetween(starDate, endDate);
+    @Transactional(readOnly = true)
+    public List<CropResponseDTO> getCropsByPlantDateBetween(LocalDate startDate, LocalDate endDate) {
+        if(startDate == null || endDate == null) {
+            throw new BusinessException("The date cannot be empty.");
+        }
+
+        LocalDate firstDate = (startDate.isBefore(endDate)) ? startDate : endDate;
+        LocalDate lastDate = (startDate.isAfter(endDate)) ? startDate : endDate;
+
+
+        return cropRepository.findByPlantDateBetween(firstDate, lastDate).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Saves a new crop, creating the associated product first
      */
     @Transactional
-    public Crop saveCrop(Crop crop) {
-        if(crop.getPlantDate() != null && crop.getHarvestDate() != null) {
-            if(crop.getHarvestDate().isBefore(crop.getPlantDate())) {
-                throw new RuntimeException("Harvest date cannot be before plant date.");
-            }
-        }
+    public CropResponseDTO saveCrop(CropRequestDTO dto) {
+        Plot plot = plotRepository.findById(dto.plotId())
+            .orElseThrow(() -> new ResourceNotFoundException("No plots were found with the provided ID."));
 
-        if(crop.getExpectedYield() != null && crop.getExpectedYield().compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("Expected yield cannot be negative.");
-        }
+        validateCropData(dto);
 
-        return cropRepository.save(crop);
+        Crop crop = toEntity(dto, plot);
+
+        return toResponse(cropRepository.save(crop));
     }
 
     /**
      *  Updates an existing crop and its associated base product information
      */
     @Transactional
-    public Crop updateCrop(Integer id, Crop details) {
+    public CropResponseDTO updateCrop(Integer id, CropRequestDTO dto) {
         Crop existingCrop = cropRepository.findById(id)
-            .orElseThrow(()-> new RuntimeException("Crop not found with the provided ID."));
+            .orElseThrow(()-> new ResourceNotFoundException("Crop not found with the provided ID."));
 
-        if(details.getPlantDate() != null && details.getHarvestDate() != null) {
-            if(details.getHarvestDate().isBefore(details.getPlantDate())) {
-                throw new RuntimeException("Update failed: Harvest date cannot be before plant date.");
-            }
+        Plot plot = plotRepository.findById(dto.plotId())
+            .orElseThrow(() -> new ResourceNotFoundException("No plot were found with that ID."));
+
+        if(!existingCrop.getPlot().getId().equals(plot.getId())) {
+            throw new BusinessException("The crop cannot be moved to another plot.");
         }
 
-        existingCrop.setName(details.getName());
-        existingCrop.setExpectedYield(details.getExpectedYield());
-        existingCrop.setCultureType(details.getCultureType());
-        existingCrop.setSpecificCulture(details.getSpecificCulture());
-        existingCrop.setStatus(details.getStatus());
-        existingCrop.setPlantDate(details.getPlantDate());
-        existingCrop.setHarvestDate(details.getHarvestDate());
-        existingCrop.setBasePrice(details.getBasePrice());
-        existingCrop.setProductStatus(details.getProductStatus());
+        validateCropData(dto);
 
-        return cropRepository.save(existingCrop);
+        Crop crop = toEntity(dto, plot);
+
+        crop.setId(id);
+
+        return toResponse(cropRepository.save(crop));
     }
 
     /**
@@ -128,9 +220,9 @@ public class CropService {
     @Transactional
     public void deleteCrop(Integer id) {
         if(!cropRepository.existsById(id)) {
-            throw new RuntimeException("Cannot delete: Crop record not found.");
+            throw new ResourceNotFoundException("Cannot delete: Crop record not found.");
         }
 
-        productService.deleteProduct(id);
+        cropRepository.deleteById(id);
     }
 }

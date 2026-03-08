@@ -37,15 +37,21 @@ public class ProductService {
     private Product toEntity(ProductRequestDTO dto) {
         Product product = new Product();
 
-        if(dto.basePrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Base price cannot be negative.");
-        }
-
         product.setProductStatus(dto.productStatus());
         product.setBasePrice(dto.basePrice());
 
         return product;
     }
+
+    /**
+     *  
+     */
+   private void validateProductData(ProductRequestDTO dto) {
+
+        if(dto.basePrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Base price cannot be negative.");
+        }
+   }
 
     /**
      *  Retrieves all products
@@ -94,6 +100,8 @@ public class ProductService {
      */
     @Transactional
     public ProductResponseDTO saveProduct(ProductRequestDTO dto) {
+        validateProductData(dto);
+
         Product newProduct = toEntity(dto);
 
         return toResponse(productRepository.save(newProduct));
@@ -107,6 +115,8 @@ public class ProductService {
         if(!productRepository.existsById(id)) {
             throw new ResourceNotFoundException("There is no product registered with the provided ID.");
         }
+
+        validateProductData(dto);
 
         Product updatedProduct = toEntity(dto);
 

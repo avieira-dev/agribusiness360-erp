@@ -58,7 +58,7 @@ public class PlotService {
     }
 
     /**
-     *  Performs business validations on product data
+     *  Performs business validations on plot data
      */
     private void validatePlotData(PlotRequestDTO dto) {
         if(dto.area().compareTo(BigDecimal.ZERO) < 0) {

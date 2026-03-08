@@ -44,7 +44,7 @@ public class ProductService {
     }
 
     /**
-     *  
+     *  Performs business validations on product data
      */
    private void validateProductData(ProductRequestDTO dto) {
 

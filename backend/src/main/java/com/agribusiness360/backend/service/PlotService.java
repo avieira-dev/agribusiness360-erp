@@ -45,15 +45,8 @@ public class PlotService {
     /**
      *  Convert DTO to entity
      */
-    private Plot toEntity(PlotRequestDTO dto) {
+    private Plot toEntity(PlotRequestDTO dto, RuralProperty property) {
         Plot plot = new Plot();
-
-        if(dto.area().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Area cannot be negative.");
-        }
-
-        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
-                .orElseThrow(() -> new ResourceNotFoundException("Property not found."));
 
         plot.setRuralProperty(property);
         plot.setName(dto.name());
@@ -62,6 +55,15 @@ public class PlotService {
         plot.setSoilType(dto.soilType());
 
         return plot;
+    }
+
+    /**
+     *  Performs business validations on product data
+     */
+    private void validatePlotData(PlotRequestDTO dto) {
+        if(dto.area().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Area cannot be negative.");
+        }
     }
 
     /**
@@ -123,15 +125,20 @@ public class PlotService {
      */
     @Transactional
     public PlotResponseDTO savePlot(PlotRequestDTO dto) {
-        if(plotRepository.existsByNameAndRuralPropertyId(dto.name(), dto.propertyId())) {
+        validatePlotData(dto);
+
+        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("Property not found."));
+
+        if(plotRepository.existsByNameAndRuralPropertyId(dto.name(), property.getId())) {
             throw new BusinessException("A plot with this name already exists in the property.");
         }
 
-        if(plotRepository.existsByCodeAndRuralPropertyId(dto.code(), dto.propertyId())) {
+        if(plotRepository.existsByCodeAndRuralPropertyId(dto.code(), property.getId())) {
             throw new BusinessException("This plot code is already in use.");
         }
 
-        Plot plot = toEntity(dto);
+        Plot plot = toEntity(dto, property);
 
         return toResponse(plotRepository.save(plot));
     }
@@ -141,8 +148,17 @@ public class PlotService {
      */
     @Transactional
     public PlotResponseDTO updatePlot(Integer id, PlotRequestDTO dto) {
+        validatePlotData(dto);
+
         Plot plot = plotRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No plot found with this ID."));
+
+        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("Property not found."));
+
+        if(!plot.getRuralProperty().getId().equals(property.getId())) {
+            throw new BusinessException("The plot cannot be transferred to another property.");
+        }
 
         plotRepository.findByNameAndRuralPropertyId(dto.name(), dto.propertyId()).ifPresent(existing -> {
             if(!existing.getId().equals(id)) {
@@ -158,7 +174,7 @@ public class PlotService {
             throw new BusinessException("Cannot move a plot to another property.");
         }
 
-        Plot updatedPlot = toEntity(dto);
+        Plot updatedPlot = toEntity(dto, property);
 
         updatedPlot.setId(id);
 

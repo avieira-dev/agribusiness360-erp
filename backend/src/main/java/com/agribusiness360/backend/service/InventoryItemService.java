@@ -49,19 +49,8 @@ public class InventoryItemService {
     /** 
      *  Convert DTO to entity
      */
-    private InventoryItem toEntity(InventoryItemRequestDTO dto) {
+    private InventoryItem toEntity(InventoryItemRequestDTO dto, RuralProperty property) {
         InventoryItem item = new InventoryItem();
-
-        if(dto.quantity().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Quantity cannot be negative.");
-        }
-
-        if(dto.unitCost().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Unit cost cannot be negative.");
-        }
-
-        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
-            .orElseThrow(() -> new ResourceNotFoundException("Property not found."));
 
         item.setRuralProperty(property);
         item.setName(dto.name());
@@ -73,6 +62,19 @@ public class InventoryItemService {
         item.setTotalCost(dto.quantity().multiply(dto.unitCost()));
         
         return item;
+    }
+
+    /**
+     *  Performs business validations on inventory item data
+     */
+    private void validateItemData(InventoryItemRequestDTO dto) {
+        if(dto.quantity().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Quantity cannot be negative.");
+        }
+
+        if(dto.unitCost().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Unit cost cannot be negative.");
+        }
     }
 
     /**
@@ -131,11 +133,16 @@ public class InventoryItemService {
      */
     @Transactional
     public InventoryItemResponseDTO saveItem(InventoryItemRequestDTO dto) {
-        if(inventoryItemRepository.existsByNameAndRuralPropertyId(dto.name(), dto.propertyId())) {
+        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("No properties were found with the provided ID."));
+
+        if(inventoryItemRepository.existsByNameAndRuralPropertyId(dto.name(), property.getId())) {
             throw new BusinessException("An item with this name already exists for this property.");
         }
 
-        InventoryItem item = toEntity(dto);
+        validateItemData(dto);
+
+        InventoryItem item = toEntity(dto, property);
 
         return toResponse(inventoryItemRepository.save(item));
     }
@@ -145,18 +152,23 @@ public class InventoryItemService {
      */
     @Transactional
     public InventoryItemResponseDTO updateItem(Integer id, InventoryItemRequestDTO dto) {
+        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("No properties were found with the provided ID."));
+
         if(!inventoryItemRepository.existsById(id)) {
             throw new ResourceNotFoundException("Cannot update: Item not found.");
         }
 
-        inventoryItemRepository.findByNameAndRuralPropertyId(dto.name(), dto.propertyId())
+        inventoryItemRepository.findByNameAndRuralPropertyId(dto.name(), property.getId())
             .ifPresent(existing -> {
                 if(!existing.getId().equals(id)) {
                     throw new BusinessException("Another item already uses this name in this property.");
                 }
             });
 
-        InventoryItem item = toEntity(dto);
+        validateItemData(dto);
+
+        InventoryItem item = toEntity(dto, property);
 
         item.setId(id);
 

@@ -44,18 +44,10 @@ public class AccessService {
     /**
      *  Convert DTO to entity
      */
-    private Access toEntity(AccessRequestDTO dto) {
+    private Access toEntity(AccessRequestDTO dto, User user, RuralProperty property, AccessId accessId) {
         Access access = new Access();
 
-        AccessId accessId = new AccessId(dto.userId(), dto.propertyId());
         access.setId(accessId);
-
-        User user = userRepository.findById(dto.userId())
-            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
-
-        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
-            .orElseThrow(() -> new ResourceNotFoundException("Property not found."));
-
         access.setUser(user);
         access.setRuralProperty(property);
         access.setPermissionLevel(dto.permissionLevel());
@@ -92,7 +84,15 @@ public class AccessService {
      */
     @Transactional
     public AccessResponseDTO grantAccess(AccessRequestDTO dto) {
-        Access newAccess = toEntity(dto);
+        User user = userRepository.findById(dto.userId())
+            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
+        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("Property not found."));
+
+        AccessId accessId = new AccessId(user.getId(), property.getId());
+
+        Access newAccess = toEntity(dto, user, property, accessId);
 
         return toResponse(accessRepository.save(newAccess));
     }
@@ -102,13 +102,21 @@ public class AccessService {
      */
     @Transactional
     public AccessResponseDTO updatePermission(AccessRequestDTO dto) {
-        AccessId accessId = new AccessId(dto.userId(), dto.propertyId());
+        User user = userRepository.findById(dto.userId())
+            .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+        
+        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("Property not found."));
+
+        AccessId accessId = new AccessId(user.getId(), property.getId());
 
         if(!accessRepository.existsById(accessId)) {
             throw new ResourceNotFoundException("This access permission does not exist.");
         }
 
-        Access updateAccess = toEntity(dto);
+        Access updateAccess = toEntity(dto, user, property, accessId);
+
+        updateAccess.setId(accessId);
 
         return toResponse(accessRepository.save(updateAccess));
     }

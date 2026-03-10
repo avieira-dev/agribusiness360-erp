@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.agribusiness360.backend.dto.LivestockRequestDTO;
+import com.agribusiness360.backend.dto.LivestockResponseDTO;
 import com.agribusiness360.backend.model.AnimalSex;
 import com.agribusiness360.backend.model.AnimalType;
 import com.agribusiness360.backend.model.HealthStatus;
-import com.agribusiness360.backend.model.Livestock;
 import com.agribusiness360.backend.service.LivestockService;
 
 @RestController
@@ -39,88 +40,72 @@ public class LivestockController {
      *  Search all animals
      */
     @GetMapping
-    public ResponseEntity<List<Livestock>> getAllAnimals() {
-        List<Livestock> animals = livestockService.getAllAnimals();
-
-        return ResponseEntity.ok(animals);
+    public ResponseEntity<List<LivestockResponseDTO>> getAllAnimals() {
+        return ResponseEntity.ok(livestockService.getAllAnimals());
     }
 
     /**
      *  Search all animals from a specific property
      */
     @GetMapping("/property/{id}")
-    public ResponseEntity<List<Livestock>> getAllAnimalsByProperty(@PathVariable Integer id) {
-        List<Livestock> animals = livestockService.getAllAnimalsByProperty(id);
-
-        return ResponseEntity.ok(animals);
+    public ResponseEntity<List<LivestockResponseDTO>> getAllAnimalsByProperty(@PathVariable Integer id) {
+        return ResponseEntity.ok(livestockService.getAllAnimalsByProperty(id));
     }
 
     /**
      *  Search all animals of a specific type from a specific property
      */
     @GetMapping("/property/{id}/type")
-    public ResponseEntity<List<Livestock>> getAnimalsOfSpecificTypeFromSpecificProperty(@PathVariable Integer id, @RequestParam AnimalType animalType) {
-        List<Livestock> animals = livestockService.getAllAnimalsByPropertyIdAndAnimalType(id, animalType);
-
-        return ResponseEntity.ok(animals);
+    public ResponseEntity<List<LivestockResponseDTO>> getAnimalsOfSpecificTypeFromSpecificProperty(@PathVariable Integer id, @RequestParam AnimalType animalType) {
+        return ResponseEntity.ok(livestockService.getAllAnimalsByPropertyIdAndAnimalType(id, animalType));
     }
 
     /**
      *  Search animals by sex
      */
     @GetMapping("/animal-sex")
-    public ResponseEntity<List<Livestock>> getAnimalsBySex(@RequestParam AnimalSex animalSex) {
-        List<Livestock> animals = livestockService.getAnimalsBySpecificSex(animalSex);
-
-        return ResponseEntity.ok(animals);
+    public ResponseEntity<List<LivestockResponseDTO>> getAnimalsBySex(@RequestParam AnimalSex animalSex) {
+        return ResponseEntity.ok(livestockService.getAnimalsBySpecificSex(animalSex));
     }
 
     /**
      *  Search animals by health status
      */
     @GetMapping("/health-status")
-    public ResponseEntity<List<Livestock>> getAnimalsByHealthStatus(@RequestParam HealthStatus healthStatus) {
-        List<Livestock> animals = livestockService.getAllAnimalsByHealthStatus(healthStatus);
-
-        return ResponseEntity.ok(animals);
+    public ResponseEntity<List<LivestockResponseDTO>> getAnimalsByHealthStatus(@RequestParam HealthStatus healthStatus) {
+        return ResponseEntity.ok(livestockService.getAllAnimalsByHealthStatus(healthStatus));
     }
 
     /**
      *  Search animals by health status from a specific property
      */
     @GetMapping("/property/{id}/health-status")
-    public ResponseEntity<List<Livestock>> getAnimalsByHealthStatusFromSpecificProperty(@PathVariable Integer id, @RequestParam HealthStatus healthStatus) {
-        List<Livestock> animals = livestockService.getAllAnimalsByPropertyIdAndHealthStatus(id, healthStatus);
-
-        return ResponseEntity.ok(animals);
+    public ResponseEntity<List<LivestockResponseDTO>> getAnimalsByHealthStatusFromSpecificProperty(@PathVariable Integer id, @RequestParam HealthStatus healthStatus) {
+        return ResponseEntity.ok(livestockService.getAllAnimalsByPropertyIdAndHealthStatus(id, healthStatus));
     }
 
     /**
      *  Search for an animal by identification code
      */
     @GetMapping("/animal-code")
-    public ResponseEntity<Livestock> getAnimalByCode(@RequestParam String code) {
-        Livestock animal = livestockService.getAnimalByUniqueCode(code);
-
-        return ResponseEntity.ok(animal);
+    public ResponseEntity<LivestockResponseDTO> getAnimalByCode(@RequestParam String code) {
+        return ResponseEntity.ok(livestockService.getAnimalByUniqueCode(code));
     }
     
     /**
      *  Search for an animal by traceability code
      */
     @GetMapping("/animal-traceability")
-    public ResponseEntity<Livestock> getAnimalByTraceability(@RequestParam String traceability) {
-        Livestock animal = livestockService.getAnimalByTraceability(traceability);
-
-        return ResponseEntity.ok(animal);
+    public ResponseEntity<LivestockResponseDTO> getAnimalByTraceability(@RequestParam String traceability) {
+        return ResponseEntity.ok(livestockService.getAnimalByTraceability(traceability));
     }
 
     /**
      *  Save a new animal
      */
     @PostMapping
-    public ResponseEntity<Livestock> saveAnimal(@RequestBody Livestock animal) {
-        Livestock newAnimal = livestockService.saveAnimal(animal);
+    public ResponseEntity<LivestockResponseDTO> saveAnimal(@RequestBody LivestockRequestDTO dto) {
+        LivestockResponseDTO newAnimal = livestockService.saveAnimal(dto);
 
         return new ResponseEntity<>(newAnimal, HttpStatus.CREATED);
     }
@@ -129,10 +114,10 @@ public class LivestockController {
      *  Update animal
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Livestock> updateAnimal(@PathVariable Integer id, @RequestBody Livestock animalDetails) {
-        Livestock updated = livestockService.updateAnimal(id, animalDetails);
+    public ResponseEntity<LivestockResponseDTO> updateAnimal(@PathVariable Integer id, @RequestBody LivestockRequestDTO dto) {
+        LivestockResponseDTO updatedAnimal = livestockService.updateAnimal(id, dto);
 
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(updatedAnimal);
     }
 
     /**

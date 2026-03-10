@@ -45,12 +45,18 @@ public class UserService {
         user.setPasswordHash(dto.password());
         user.setUsername(dto.username());
         user.setCode(dto.code());
-
-        if(dto.userRole() != null) {
-            user.setUserRole(dto.userRole());
-        }
+        user.setUserRole(dto.userRole());
 
         return user;
+    }
+
+    /**
+     *  Performs business validations on user data
+     */
+    private void validateUserData(UserRequestDTO dto) {
+        if(dto.userRole() == null) {
+            throw new BusinessException("The user's function cannot be null.");
+        }
     }
 
     /**
@@ -118,6 +124,8 @@ public class UserService {
             throw new BusinessException("A user with this username already exists");
         }
 
+        validateUserData(dto);
+
         User user = toEntity(dto);
 
         return toResponse(userRepository.save(user));
@@ -128,8 +136,9 @@ public class UserService {
      */
     @Transactional
     public UserResponseDTO updateUser(Integer id, UserRequestDTO dto) {
-        User userExisting = userRepository.findById(id)
-                        .orElseThrow(()-> new ResourceNotFoundException("User with the given ID does not exist."));
+        if(!userRepository.existsById(id)) {
+            throw new ResourceNotFoundException("User with the given ID does not exist.");
+        }
 
         userRepository.findByEmail(dto.email()).ifPresent(existingUser -> {
             if(!existingUser.getId().equals(id)) {
@@ -149,16 +158,13 @@ public class UserService {
             }
         });
 
-        userExisting.setName(dto.name());
-        userExisting.setUsername(dto.username());
-        userExisting.setEmail(dto.email());
-        userExisting.setCode(dto.code());
+        validateUserData(dto);
 
-        if(dto.userRole() != null) {
-            userExisting.setUserRole(dto.userRole());
-        }
+        User user = toEntity(dto);
 
-        return toResponse(userRepository.save(userExisting));
+        user.setId(id);
+
+        return toResponse(userRepository.save(user));
     }
 
     /**

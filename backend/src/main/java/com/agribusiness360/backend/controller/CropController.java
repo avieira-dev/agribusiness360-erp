@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.agribusiness360.backend.model.Crop;
+import com.agribusiness360.backend.dto.CropRequestDTO;
+import com.agribusiness360.backend.dto.CropResponseDTO;
 import com.agribusiness360.backend.model.CropStatus;
 import com.agribusiness360.backend.model.CultureType;
 import com.agribusiness360.backend.service.CropService;
@@ -39,78 +40,64 @@ public class CropController {
      *  Search all crops
      */
     @GetMapping
-    public ResponseEntity<List<Crop>> getAllCrops() {
-        List<Crop> crops = cropService.getAllCrops();
-
-        return ResponseEntity.ok(crops);
+    public ResponseEntity<List<CropResponseDTO>> getAllCrops() {
+        return ResponseEntity.ok(cropService.getAllCrops());
     }
 
     /**
      *  Search crops by plot
      */
     @GetMapping("/plot/{id}")
-    public ResponseEntity<List<Crop>> getCropsByPlot(@PathVariable Integer id) {
-        List<Crop> crops = cropService.getCropsByPlotId(id);
-
-        return ResponseEntity.ok(crops);
+    public ResponseEntity<List<CropResponseDTO>> getCropsByPlot(@PathVariable Integer id) {
+        return ResponseEntity.ok(cropService.getCropsByPlotId(id));
     }
 
     /**
      *  Search crops by name
      */
     @GetMapping("/search-name")
-    public ResponseEntity<List<Crop>> getCropByName(@RequestParam String name) {
-        List<Crop> crops = cropService.getCropByName(name);
-
-        return ResponseEntity.ok(crops);
+    public ResponseEntity<List<CropResponseDTO>> getCropByName(@RequestParam String name) {
+        return ResponseEntity.ok(cropService.getCropByName(name));
     }
 
     /**
      *  Search crops by crop type
      */
     @GetMapping("/search-culture")
-    public ResponseEntity<List<Crop>> getCropsByCulture(@RequestParam CultureType cultureType) {
-        List<Crop> crops = cropService.getCropsByCultureType(cultureType);
-
-        return ResponseEntity.ok(crops);
+    public ResponseEntity<List<CropResponseDTO>> getCropsByCulture(@RequestParam CultureType cultureType) {
+        return ResponseEntity.ok(cropService.getCropsByCultureType(cultureType));
     }
 
     /**
      *  Search crops by custom crop type
      */
     @GetMapping("/specific-culture")
-    public ResponseEntity<List<Crop>> getCropsBySpecificCulture(@RequestParam String specificCulture) {
-        List<Crop> crops = cropService.getCropsSpecificCulture(specificCulture);
-
-        return ResponseEntity.ok(crops);
+    public ResponseEntity<List<CropResponseDTO>> getCropsBySpecificCulture(@RequestParam String specificCulture) {
+        return ResponseEntity.ok(cropService.getCropsSpecificCulture(specificCulture));
     }
 
     /**
      *  Search crops by status
      */
     @GetMapping("/search-status")
-    public ResponseEntity<List<Crop>> getCropsByStatus(@RequestParam CropStatus cropStatus) {
-        List<Crop> crops = cropService.getCropsByStatus(cropStatus);
-
-        return ResponseEntity.ok(crops);
+    public ResponseEntity<List<CropResponseDTO>> getCropsByStatus(@RequestParam CropStatus cropStatus) {
+        return ResponseEntity.ok(cropService.getCropsByStatus(cropStatus));
     }
 
     /**
      *  Search crops within a specific period
      */
     @GetMapping("/period")
-    public ResponseEntity<List<Crop>> getCropsByPeriod(@RequestParam LocalDate starDate, @RequestParam LocalDate endDate) {
-        List<Crop> crops = cropService.getCropsByPlantDateBetween(starDate, endDate);
-
-        return ResponseEntity.ok(crops);
+    public ResponseEntity<List<CropResponseDTO>> getCropsByPeriod(@RequestParam LocalDate starDate, @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(cropService.getCropsByPlantDateBetween(starDate, endDate));
     }
 
     /**
      *  Save new crop
      */
     @PostMapping
-    public ResponseEntity<Crop> saveCrop(@RequestBody Crop crop) {
-        Crop newCrop = cropService.saveCrop(crop);
+    public ResponseEntity<CropResponseDTO> saveCrop(@RequestBody CropRequestDTO dto) {
+        CropResponseDTO newCrop = cropService.saveCrop(dto);
 
         return new ResponseEntity<>(newCrop, HttpStatus.CREATED);
     }
@@ -119,8 +106,8 @@ public class CropController {
      *  Update crop
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Crop> updateCrop(@PathVariable Integer id, @RequestBody Crop cropDetails) {
-        Crop updatedCrop = cropService.updateCrop(id, cropDetails);
+    public ResponseEntity<CropResponseDTO> updateCrop(@PathVariable Integer id, @RequestBody CropRequestDTO dto) {
+        CropResponseDTO updatedCrop = cropService.updateCrop(id, dto);
 
         return ResponseEntity.ok(updatedCrop);
     }

@@ -59,4 +59,14 @@ public interface LivestockRepository extends JpaRepository<Livestock, Integer> {
      *  Search for an animal using the traceability code
      */
     Optional<Livestock> findByTraceability(String traceability);
+
+    /** 
+     *  Search for a animal by its code within a specific property
+     */
+    boolean existsByCodeAndRuralPropertyId(String code, Integer id);
+
+    /** 
+     *  Search for a animal by its traceability within a specific property
+     */
+    boolean existsByTraceabilityAndRuralPropertyId(String traceability, Integer id);
 }

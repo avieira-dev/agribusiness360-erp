@@ -2,11 +2,20 @@ package com.agribusiness360.backend.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
+import com.agribusiness360.backend.dto.LivestockRequestDTO;
+import com.agribusiness360.backend.dto.LivestockResponseDTO;
+import com.agribusiness360.backend.exception.BusinessException;
+import com.agribusiness360.backend.exception.ResourceNotFoundException;
 import com.agribusiness360.backend.model.AnimalSex;
 import com.agribusiness360.backend.model.AnimalType;
 import com.agribusiness360.backend.model.HealthStatus;
 import com.agribusiness360.backend.model.Livestock;
+import com.agribusiness360.backend.model.Product;
+import com.agribusiness360.backend.model.RuralProperty;
 import com.agribusiness360.backend.repository.LivestockRepository;
+import com.agribusiness360.backend.repository.ProductRepository;
+import com.agribusiness360.backend.repository.RuralPropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,129 +27,253 @@ public class LivestockService {
     private LivestockRepository livestockRepository;
 
     @Autowired
-    private  ProductService productService;
+    private  ProductRepository productRepository;
+
+    @Autowired
+    private RuralPropertyRepository ruralProperty;
+
+    @Autowired
+    private ProductService productService;
+
+    /**
+     *  Convert entity to DTO
+     */
+    private LivestockResponseDTO toResponse(Livestock livestock) {
+        return new LivestockResponseDTO(
+            livestock.getId(),
+            livestock.getRuralProperty().getId(),
+            livestock.getRuralProperty().getName(),
+            livestock.getRuralProperty().getCode(),
+            livestock.getBasePrice(),
+            livestock.getProductStatus(),
+            livestock.getAnimalType(),
+            livestock.getSex(),
+            livestock.getBirthDate(),
+            livestock.getWeight(),
+            livestock.getCode(),
+            livestock.getTraceability(),
+            livestock.getHealthStatus(),
+            livestock.getCreatedAt()
+        );
+    }
+
+    /** 
+     *  Convert DTO to entity
+     */
+    private Livestock toEntity(LivestockRequestDTO dto, RuralProperty property, Product product) {
+        Livestock livestock = new Livestock();
+
+        livestock.setRuralProperty(property);
+        livestock.setProductStatus(product.getProductStatus());
+        livestock.setBasePrice(product.getBasePrice());
+        livestock.setAnimalType(dto.animalType());
+        livestock.setSex(dto.sex());
+        livestock.setBirthDate(dto.birthDate());
+        livestock.setWeight(dto.weight());
+        livestock.setCode(dto.code());
+        livestock.setTraceability(dto.traceability());
+        livestock.setHealthStatus(dto.healthStatus());
+
+        return livestock;
+    }
+
+    /** 
+     *  Performs business validations on animal data
+     */
+    private void validateAnimalData(LivestockRequestDTO dto) {
+        if(dto.productStatus() == null) {
+            throw new BusinessException("Product status must not be null.");
+        }
+
+        if(dto.basePrice() == null) {
+            throw new BusinessException("Base price must not be null.");
+        }
+
+        if(dto.basePrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Base price must not be negative.");
+        }
+
+        if(dto.animalType() == null) {
+            throw new BusinessException("Animal type must not be null.");
+        }
+
+        if(dto.sex() == null) {
+            throw new BusinessException("Animal sex must not be null.");
+        }
+
+        if(dto.weight() == null) {
+            throw new BusinessException("Weight must not be null.");
+        }
+
+        if(dto.weight().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Weight must not be negative.");
+        }
+
+        if(dto.healthStatus() == null) {
+            throw new BusinessException("Health status must not be null.");
+        }
+    }
 
     /**
      *  Retrieves all animals
      */
-    public List<Livestock> getAllAnimals() {
-        return livestockRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<LivestockResponseDTO> getAllAnimals() {
+        return livestockRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves all animals from a specific property
      */
-    public List<Livestock> getAllAnimalsByProperty(Integer id) {
-        return livestockRepository.findByRuralPropertyId(id);
+    @Transactional(readOnly = true)
+    public List<LivestockResponseDTO> getAllAnimalsByProperty(Integer id) {
+        return livestockRepository.findByRuralPropertyId(id).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves all animals from a specific type
      */
-    public List<Livestock> getAllAnimalsSpecificType(AnimalType animalType) {
-        return livestockRepository.findByAnimalType(animalType);
+    @Transactional(readOnly = true)
+    public List<LivestockResponseDTO> getAllAnimalsSpecificType(AnimalType animalType) {
+        return livestockRepository.findByAnimalType(animalType).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves all animals of a specific type from a specific property
      */
-    public List<Livestock> getAllAnimalsByPropertyIdAndAnimalType(Integer id, AnimalType animalType) {
-        return livestockRepository.findByRuralPropertyIdAndAnimalType(id, animalType);
+    @Transactional(readOnly = true)
+    public List<LivestockResponseDTO> getAllAnimalsByPropertyIdAndAnimalType(Integer id, AnimalType animalType) {
+        return livestockRepository.findByRuralPropertyIdAndAnimalType(id, animalType).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves all animals of a specific sex
      */
-    public List<Livestock> getAnimalsBySpecificSex(AnimalSex animalSex) {
-        return livestockRepository.findBySex(animalSex);
+    @Transactional(readOnly = true)
+    public List<LivestockResponseDTO> getAnimalsBySpecificSex(AnimalSex animalSex) {
+        return livestockRepository.findBySex(animalSex).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves all animals of a specific sex from a specific property
      */
-    public List<Livestock> getAllAnimalsByPropertyIdAndAnimalSex(Integer id, AnimalSex animalSex) {
-        return livestockRepository.findByRuralPropertyIdAndSex(id, animalSex);
+    @Transactional(readOnly = true)
+    public List<LivestockResponseDTO> getAllAnimalsByPropertyIdAndAnimalSex(Integer id, AnimalSex animalSex) {
+        return livestockRepository.findByRuralPropertyIdAndSex(id, animalSex).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves all animals by health status
      */
-    public List<Livestock> getAllAnimalsByHealthStatus(HealthStatus healthStatus) {
-        return livestockRepository.findByHealthStatus(healthStatus);
+    @Transactional(readOnly = true)
+    public List<LivestockResponseDTO> getAllAnimalsByHealthStatus(HealthStatus healthStatus) {
+        return livestockRepository.findByHealthStatus(healthStatus).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves all animals from a specific property by health status
      */
-    public List<Livestock> getAllAnimalsByPropertyIdAndHealthStatus(Integer id, HealthStatus healthStatus) {
-        return  livestockRepository.findByRuralPropertyIdAndHealthStatus(id, healthStatus);
+    @Transactional(readOnly = true)
+    public List<LivestockResponseDTO> getAllAnimalsByPropertyIdAndHealthStatus(Integer id, HealthStatus healthStatus) {
+        return  livestockRepository.findByRuralPropertyIdAndHealthStatus(id, healthStatus).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
      *  Retrieves the animal by its unique code
      */
-    public Livestock getAnimalByUniqueCode(String code) {
-        return livestockRepository.findByCode(code)
-                .orElseThrow(()-> new RuntimeException("No animal found with this code."));
+    @Transactional(readOnly = true)
+    public LivestockResponseDTO getAnimalByUniqueCode(String code) {
+        Livestock animal = livestockRepository.findByCode(code)
+            .orElseThrow(()-> new RuntimeException("No animal found with this code."));
+
+        return toResponse(animal);
     }
 
     /**
      *  Retrieves the animal by its traceability code
      */
-    public Livestock getAnimalByTraceability(String traceability) {
-        return livestockRepository.findByTraceability(traceability)
-                .orElseThrow(()-> new RuntimeException("No animal found with this traceability."));
+    @Transactional(readOnly = true)
+    public LivestockResponseDTO getAnimalByTraceability(String traceability) {
+        Livestock animal = livestockRepository.findByCode(traceability)
+            .orElseThrow(()-> new RuntimeException("No animal found with this traceability."));
+
+        return toResponse(animal);
     }
 
     /**
      *  Saves a new animal
      */
     @Transactional
-    public Livestock saveAnimal(Livestock livestock) {
-        if(livestockRepository.findByCode(livestock.getCode()).isPresent()) {
-            throw new RuntimeException("This code is already assigned to an animal on this property.");
-        }
+    public LivestockResponseDTO saveAnimal(LivestockRequestDTO dto) {
+        validateAnimalData(dto);
 
-        if(livestockRepository.findByTraceability(livestock.getTraceability()).isPresent()) {
-            throw new RuntimeException("This traceability is already assigned to an animal on this property.");
-        }
+        RuralProperty property = ruralProperty.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("No rural property found with this id."));
 
-        if(livestock.getWeight() != null && livestock.getWeight().compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("Weight cannot be negative.");
-        }
+        livestockRepository.findByCode(dto.code()).ifPresent(existingCode -> {
+            if(existingCode.getRuralProperty().getId().equals(property.getId())) {
+                throw new BusinessException("An animal with the given code already exists in this property.");
+            }
+        });
 
+        livestockRepository.findByTraceability(dto.traceability()).ifPresent(existingTraceability -> {
+            if(existingTraceability.getRuralProperty().getId().equals(property.getId())) {
+                throw new BusinessException("An animal with the given traceability already exists in this property.");
+            }
+        });
 
-        return livestockRepository.save(livestock);
+        Product product = new Product();
+
+        Livestock newAnimal = toEntity(dto, property, product);
+
+        return toResponse(livestockRepository.save(newAnimal));
     }
 
     /**
      *  Update the registered animal
      */
     @Transactional
-    public Livestock updateAnimal(Integer id, Livestock details) {
-        Livestock existingAnimal = livestockRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("No animal found for the given ID."));
+    public LivestockResponseDTO updateAnimal(Integer id, LivestockRequestDTO dto) {
+        Livestock animal = livestockRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("No animal was found with the provided id"));
 
-        if(!existingAnimal.getCode().equals(details.getCode())) {
-            throw new RuntimeException("Animal identification code cannot be modified.");
-        }
+        Product product = productRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("No product was found with the provided id."));
 
-        if(!existingAnimal.getTraceability().equals(details.getTraceability())) {
-            if(livestockRepository.findByTraceability(details.getTraceability()).isPresent()) {
-                throw new RuntimeException("This traceability code is already assigned to another animal.");
+        validateAnimalData(dto);
+
+        if(!animal.getCode().equals(dto.code())) {
+            if(livestockRepository.findByCode(dto.code()).isPresent()) {
+                throw new BusinessException("An animal with the given code already exists in this property.");
             }
         }
 
-        existingAnimal.setAnimalType(details.getAnimalType());
-        existingAnimal.setBirthDate(details.getBirthDate());
-        existingAnimal.setSex(details.getSex());
-        existingAnimal.setWeight(details.getWeight());
-        existingAnimal.setHealthStatus(details.getHealthStatus());
-        existingAnimal.setTraceability(details.getTraceability());
-        existingAnimal.setBasePrice(details.getBasePrice());
-        existingAnimal.setProductStatus(details.getProductStatus());
+        if(!animal.getTraceability().equals(dto.traceability())) {
+            if(livestockRepository.findByTraceability(dto.traceability()).isPresent()) {
+                throw new BusinessException("An animal with the given traceability already exists in this property.");
+            }
+        }
 
-        return livestockRepository.save(existingAnimal);
+        if(!animal.getRuralProperty().getId().equals(dto.propertyId())) {
+            if(livestockRepository.existsByCodeAndRuralPropertyId(dto.code(), dto.propertyId())) {
+                throw new BusinessException("An animal with the given code already exists in the property to which the animal will be transferred.");
+            }
+        }
+
+        RuralProperty property = ruralProperty.findById(dto.propertyId())
+            .orElseThrow(() -> new ResourceNotFoundException("No rural property found with this id."));
+
+        if(!animal.getTraceability().equals(dto.traceability())) {
+            if(livestockRepository.existsByTraceabilityAndRuralPropertyId(dto.traceability(), property.getId())) {
+                throw new BusinessException("An animal with the given traceability already exists in this property.");
+            }
+        }
+
+        Livestock updatedAnimal = toEntity(dto, property, product);
+
+        updatedAnimal.setId(id);
+
+        return toResponse(livestockRepository.save(updatedAnimal));
     }
 
     /**

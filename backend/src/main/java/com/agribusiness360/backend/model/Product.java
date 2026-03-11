@@ -24,7 +24,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "product")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Product implements Serializable {
+public abstract class Product implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,4 +37,9 @@ public class Product implements Serializable {
 
     @Column(name = "base_price", nullable = true, precision = 12, scale = 2)
     private BigDecimal basePrice;
+
+    /**     
+     *  Abstract method to return the formatted product name
+     */
+    public abstract String getDisplayName();
 }

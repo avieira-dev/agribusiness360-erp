@@ -224,6 +224,9 @@ public class LivestockService {
 
         Product product = new Product();
 
+        product.setBasePrice(dto.basePrice());
+        product.setProductStatus(dto.productStatus());
+
         Livestock newAnimal = toEntity(dto, property, product);
 
         return toResponse(livestockRepository.save(newAnimal));
@@ -241,6 +244,9 @@ public class LivestockService {
             .orElseThrow(() -> new ResourceNotFoundException("No product was found with the provided id."));
 
         validateAnimalData(dto);
+
+        product.setBasePrice(dto.basePrice());
+        product.setProductStatus(dto.productStatus());
 
         if(!animal.getCode().equals(dto.code())) {
             if(livestockRepository.findByCode(dto.code()).isPresent()) {

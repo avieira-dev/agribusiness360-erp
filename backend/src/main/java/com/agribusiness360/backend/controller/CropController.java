@@ -88,8 +88,8 @@ public class CropController {
      *  Search crops within a specific period
      */
     @GetMapping("/period")
-    public ResponseEntity<List<CropResponseDTO>> getCropsByPeriod(@RequestParam LocalDate starDate, @RequestParam LocalDate endDate) {
-        return ResponseEntity.ok(cropService.getCropsByPlantDateBetween(starDate, endDate));
+    public ResponseEntity<List<CropResponseDTO>> getCropsByPeriod(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return ResponseEntity.ok(cropService.getCropsByPlantDateBetween(startDate, endDate));
     }
 
     /**

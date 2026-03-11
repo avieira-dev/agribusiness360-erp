@@ -63,24 +63,24 @@ public class InventoryItemController {
      *  Search for all items by name
      */
     @GetMapping("/item-name")
-    public ResponseEntity<List<InventoryItemResponseDTO>> getItemsByName(@RequestParam String itemName) {
-        return ResponseEntity.ok(inventoryItemService.getItemByName(itemName));
+    public ResponseEntity<List<InventoryItemResponseDTO>> getItemsByName(@RequestParam String name) {
+        return ResponseEntity.ok(inventoryItemService.getItemByName(name));
     }
 
     /**
      *  Search for all items by category
      */
     @GetMapping("/item-category")
-    public ResponseEntity<List<InventoryItemResponseDTO>> getItemsByCategory(@RequestParam ItemCategory itemCategory) {
-        return ResponseEntity.ok(inventoryItemService.getItemByCategory(itemCategory));
+    public ResponseEntity<List<InventoryItemResponseDTO>> getItemsByCategory(@RequestParam ItemCategory category) {
+        return ResponseEntity.ok(inventoryItemService.getItemByCategory(category));
     }
 
     /**
      *  Search for all items by status
      */
     @GetMapping("/item-status")
-    public ResponseEntity<List<InventoryItemResponseDTO>> getItemsByStatus(@RequestParam ItemStatus itemStatus) {
-        return ResponseEntity.ok(inventoryItemService.getItemByStatus(itemStatus));
+    public ResponseEntity<List<InventoryItemResponseDTO>> getItemsByStatus(@RequestParam ItemStatus status) {
+        return ResponseEntity.ok(inventoryItemService.getItemByStatus(status));
     }
 
     /**

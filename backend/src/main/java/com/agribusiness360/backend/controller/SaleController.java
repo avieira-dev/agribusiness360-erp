@@ -63,7 +63,10 @@ public class SaleController {
      *  Search sales within a specific period
      */
     @GetMapping("/period")
-    public ResponseEntity<List<SaleResponseDTO>> getSalesByPeriod(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate) {
+    public ResponseEntity<List<SaleResponseDTO>> getSalesByPeriod(
+        @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+        @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+    ) {
         return ResponseEntity.ok(saleService.getSalesByPeriod(startDate, endDate));
     }
 

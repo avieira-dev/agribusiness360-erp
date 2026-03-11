@@ -2,6 +2,7 @@ package com.agribusiness360.backend.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import com.agribusiness360.backend.model.PaymentMethod;
 
 public record SaleResponseDTO(
@@ -13,5 +14,6 @@ public record SaleResponseDTO(
     BigDecimal totalValue,
     String buyerName,
     PaymentMethod paymentMethod,
-    String notes
+    String notes,
+    List<TradedResponseDTO> items
 ) {}

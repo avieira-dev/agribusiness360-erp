@@ -3,6 +3,7 @@ package com.agribusiness360.backend.repository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import com.agribusiness360.backend.model.Plot;
 import com.agribusiness360.backend.model.SoilType;
@@ -44,4 +45,10 @@ public interface PlotRepository extends JpaRepository<Plot, Integer> {
      *  Search for a plot by its code within a specific property
      */
     boolean existsByCodeAndRuralPropertyId(String code, Integer propertyId);
+
+    /**
+     *   Fetches all plots with their associated rural properties
+     */
+    @Query("SELECT p FROM Plot p JOIN FETCH p.ruralProperty")
+    List<Plot> findAllWithProperty();
 }

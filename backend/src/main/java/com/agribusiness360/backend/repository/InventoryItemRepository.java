@@ -3,6 +3,7 @@ package com.agribusiness360.backend.repository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import com.agribusiness360.backend.model.InventoryItem;
 import com.agribusiness360.backend.model.ItemCategory;
@@ -40,4 +41,10 @@ public interface InventoryItemRepository extends JpaRepository<InventoryItem, In
      *  Search for a item from a specific property
      */
     boolean existsByNameAndRuralPropertyId(String name, Integer propertyId);
+
+    /** 
+     *  Fetches all inventory items and their associated rural properties
+     */
+    @Query("SELECT i FROM InventoryItem i JOIN FETCH i.ruralProperty")
+    List<InventoryItem> findAllWithProperty();
 }

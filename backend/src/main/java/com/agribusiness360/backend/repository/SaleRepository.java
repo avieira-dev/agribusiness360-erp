@@ -3,6 +3,7 @@ package com.agribusiness360.backend.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import com.agribusiness360.backend.model.PaymentMethod;
 import com.agribusiness360.backend.model.Sale;
@@ -29,4 +30,10 @@ public interface SaleRepository extends JpaRepository<Sale, Integer> {
      * Search all sales using specific payment method
      */
     List<Sale> findByPaymentMethod(PaymentMethod paymentMethod);
+
+    /** 
+     *  It searches for all sales by performing a JOIN FETCH with the rural property
+     */
+    @Query("SELECT s FROM Sale s JOIN FETCH s.ruralProperty")
+    List<Sale> findAllWithProperty();
 }

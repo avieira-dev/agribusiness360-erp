@@ -3,6 +3,8 @@ package com.agribusiness360.backend.repository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.agribusiness360.backend.model.AnimalSex;
 import com.agribusiness360.backend.model.AnimalType;
@@ -69,4 +71,16 @@ public interface LivestockRepository extends JpaRepository<Livestock, Integer> {
      *  Search for a animal by its traceability within a specific property
      */
     boolean existsByTraceabilityAndRuralPropertyId(String traceability, Integer id);
+
+    /** 
+     *  Fetches all animals and their associated rural property in a single query
+     */
+    @Query("SELECT l FROM Livestock l JOIN FETCH l.ruralProperty")
+    List<Livestock> findAllWithProperty();
+
+    /**
+     *  Fetches animals of a specific property with the property data already loaded
+     */
+    @Query("SELECT l FROM Livestock l JOIN FETCH l.ruralProperty WHERE l.ruralProperty.id = :propertyId")
+    List<Livestock> findByRuralPropertyIdWithFetch(@Param("propertyId") Integer propertyId);
 }

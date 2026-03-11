@@ -55,4 +55,9 @@ public class Livestock extends Product {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Override
+    public String getDisplayName() {
+        return this.getAnimalType().name() + " - " + this.getCode();
+    }
 }

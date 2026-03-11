@@ -1,14 +1,22 @@
 package com.agribusiness360.backend.service;
 
+import com.agribusiness360.backend.dto.ItemRequestDTO;
 import com.agribusiness360.backend.dto.SaleRequestDTO;
 import com.agribusiness360.backend.dto.SaleResponseDTO;
+import com.agribusiness360.backend.dto.TradedResponseDTO;
 import com.agribusiness360.backend.exception.BusinessException;
 import com.agribusiness360.backend.exception.ResourceNotFoundException;
 import com.agribusiness360.backend.model.PaymentMethod;
+import com.agribusiness360.backend.model.Product;
+import com.agribusiness360.backend.model.ProductStatus;
 import com.agribusiness360.backend.model.RuralProperty;
 import com.agribusiness360.backend.model.Sale;
+import com.agribusiness360.backend.model.Traded;
+import com.agribusiness360.backend.model.TradedId;
+import com.agribusiness360.backend.repository.ProductRepository;
 import com.agribusiness360.backend.repository.RuralPropertyRepository;
 import com.agribusiness360.backend.repository.SaleRepository;
+import com.agribusiness360.backend.repository.TradedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +34,22 @@ public class SaleService {
     @Autowired
     private RuralPropertyRepository ruralPropertyRepository;
 
-    /**
-     *  Convert entity to DTO
-     */
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private TradedRepository tradedRepository;
+
     private SaleResponseDTO toResponse(Sale sale) {
+        List<TradedResponseDTO> tradedItems = tradedRepository.findBySaleId(sale.getId())
+                .stream()
+                .map(traded -> new TradedResponseDTO(
+                        traded.getId().getSaleId(),
+                        traded.getProduct().getId(),
+                        traded.getProduct().getDisplayName(),
+                        traded.getFinalPrice()))
+                .collect(Collectors.toList());
+
         return new SaleResponseDTO(
                 sale.getId(),
                 sale.getRuralProperty().getId(),
@@ -39,59 +59,82 @@ public class SaleService {
                 sale.getTotalValue(),
                 sale.getBuyerName(),
                 sale.getPaymentMethod(),
-                sale.getNotes()
+                sale.getNotes(),
+                tradedItems
         );
     }
 
     /**
-     *  Convert DTO to entity
+     * Convert DTO to entity (registration data only)
      */
     private Sale toEntity(SaleRequestDTO dto, RuralProperty property) {
         Sale newSale = new Sale();
-
-        LocalDateTime dateToSave = (dto.saleDate() == null) ? LocalDateTime.now() : dto.saleDate();
-
         newSale.setRuralProperty(property);
-        newSale.setSaleDate(dateToSave);
-        newSale.setTotalValue(dto.totalValue());
         newSale.setBuyerName(dto.buyerName());
         newSale.setPaymentMethod(dto.paymentMethod());
         newSale.setNotes(dto.notes());
+        newSale.setSaleDate(LocalDateTime.now());
+        newSale.setTotalValue(BigDecimal.ZERO);
 
         return newSale;
     }
 
     /**
-     *   Business validations for creation and updating
+     * It processes each item in the list
+     * Validates it, creates the Traded link, and reduces the inventory
      */
-    private void validateSaleData(SaleRequestDTO dto) {
-        if(dto.totalValue() != null && dto.totalValue().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("The total value of a sale cannot be negative.");
+    private BigDecimal processSaleItems(Sale sale, List<ItemRequestDTO> items) {
+        BigDecimal totalAccumulated = BigDecimal.ZERO;
+
+        for (ItemRequestDTO itemDto : items) {
+            Product product = productRepository.findById(itemDto.productId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + itemDto.productId()));
+
+            if (product.getProductStatus() == ProductStatus.INDISPONIVEL) {
+                throw new BusinessException(
+                        "Product " + product.getDisplayName() + "  is already sold or unavailable.");
+            }
+
+            Traded traded = new Traded();
+            TradedId tradedId = new TradedId(sale.getId(), product.getId());
+            traded.setId(tradedId);
+            traded.setSale(sale);
+            traded.setProduct(product);
+            traded.setFinalPrice(itemDto.finalPrice());
+            tradedRepository.save(traded);
+
+            product.setProductStatus(ProductStatus.INDISPONIVEL);
+            productRepository.save(product);
+
+            totalAccumulated = totalAccumulated.add(itemDto.finalPrice());
         }
+
+        return totalAccumulated;
     }
 
     /**
-     *  Retrieves all sales
+     * Retrieves all sales
      */
     @Transactional(readOnly = true)
     public List<SaleResponseDTO> getAllSales() {
-        return saleRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
+        return saleRepository.findAllWithProperty().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
-     *  Retrieves sales for a specific property
+     * Retrieves sales for a specific property
      */
     @Transactional(readOnly = true)
     public List<SaleResponseDTO> getSalesByProperty(Integer propertyId) {
-        if(!ruralPropertyRepository.existsById(propertyId)) {
+        if (!ruralPropertyRepository.existsById(propertyId)) {
             throw new ResourceNotFoundException("No properties were found with the provided ID.");
         }
 
-        return saleRepository.findByRuralPropertyId(propertyId).stream().map(this::toResponse).collect(Collectors.toList());
+        return saleRepository.findByRuralPropertyId(propertyId).stream().map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     /**
-     *  Retrieves the sale using the provided ID
+     * Retrieves the sale using the provided ID
      */
     @Transactional(readOnly = true)
     public SaleResponseDTO getSaleById(Integer id) {
@@ -102,75 +145,88 @@ public class SaleService {
     }
 
     /**
-     *  Retrieves sales made within a specific period
+     * Retrieves sales made within a specific period
      */
     @Transactional(readOnly = true)
     public List<SaleResponseDTO> getSalesByPeriod(LocalDateTime startDate, LocalDateTime endDate) {
-        return saleRepository.findBySaleDateBetween(startDate, endDate).stream().map(this::toResponse).collect(Collectors.toList());
+        return saleRepository.findBySaleDateBetween(startDate, endDate).stream().map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     /**
-     *  Retrieve sales by buyer name
+     * Retrieve sales by buyer name
      */
     @Transactional(readOnly = true)
     public List<SaleResponseDTO> getSalesByBuyerName(String buyerName) {
-        return saleRepository.findByBuyerNameContainingIgnoreCase(buyerName).stream().map(this::toResponse).collect(Collectors.toList());
+        return saleRepository.findByBuyerNameContainingIgnoreCase(buyerName).stream().map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     /**
-     *  Retrieve sales by a specific payment method
+     * Retrieve sales by a specific payment method
      */
     @Transactional(readOnly = true)
     public List<SaleResponseDTO> getSalesByPaymentMethod(PaymentMethod paymentMethod) {
-        return saleRepository.findByPaymentMethod(paymentMethod).stream().map(this::toResponse).collect(Collectors.toList());
+        return saleRepository.findByPaymentMethod(paymentMethod).stream().map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     /**
-     *  Saves a new sale
+     * Saves a new sale
      */
     @Transactional
     public SaleResponseDTO saveSale(SaleRequestDTO dto) {
         RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
-            .orElseThrow(() -> new ResourceNotFoundException("No properties were found with the provided ID."));
+                .orElseThrow(() -> new ResourceNotFoundException("No properties were found with the provided ID."));
 
-        validateSaleData(dto);
+        Sale sale = toEntity(dto, property);
+        Sale savedSale = saleRepository.save(sale);
 
-        Sale sale = toEntity(dto,property);
+        BigDecimal totalCalculated = processSaleItems(savedSale, dto.items());
 
-        return toResponse(saleRepository.save(sale));
+        savedSale.setTotalValue(totalCalculated);
+
+        return toResponse(saleRepository.save(savedSale));
     }
 
     /**
-     *  Update existing product
+     * Update existing product
      */
     @Transactional
     public SaleResponseDTO updateSale(Integer id, SaleRequestDTO dto) {
         Sale existingSale = saleRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("No sales found with that ID."));
+                .orElseThrow(() -> new ResourceNotFoundException("No sales found with ID: " + id));
 
-        RuralProperty property = ruralPropertyRepository.findById(dto.propertyId())
-            .orElseThrow(() -> new ResourceNotFoundException("No properties were found with the provided ID."));
-
-        if(!existingSale.getRuralProperty().getId().equals(property.getId())) {
+        if (!existingSale.getRuralProperty().getId().equals(dto.propertyId())) {
             throw new BusinessException("The rural property linked to the sale cannot be modified.");
         }
 
-        Sale sale = toEntity(dto, property);
+        existingSale.setBuyerName(dto.buyerName());
+        existingSale.setPaymentMethod(dto.paymentMethod());
+        existingSale.setNotes(dto.notes());
 
-        sale.setId(id);
-
-        return toResponse(saleRepository.save(sale));
+        return toResponse(saleRepository.save(existingSale));
     }
 
     /**
-     *  Delete a sale
+     * Delete a sale
      */
     @Transactional
     public void deleteSale(Integer id) {
-        if(!saleRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Cannot delete: Sale record not found.");
+        Sale sale = saleRepository.findById(id)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Cannot delete: Sale record not found with ID: " + id));
+
+        List<Traded> tradedItems = tradedRepository.findBySaleId(id);
+
+        for (Traded item : tradedItems) {
+            Product product = item.getProduct();
+            product.setProductStatus(ProductStatus.DISPONIVEL);
+            productRepository.save(product);
         }
 
-        saleRepository.deleteById(id);
+        tradedRepository.deleteAll(tradedItems);
+
+        saleRepository.delete(sale);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.agribusiness360.backend.dto.AccessRequestDTO;
 import com.agribusiness360.backend.dto.AccessResponseDTO;
+import com.agribusiness360.backend.exception.BusinessException;
 import com.agribusiness360.backend.exception.ResourceNotFoundException;
 import com.agribusiness360.backend.model.Access;
 import com.agribusiness360.backend.model.AccessId;
@@ -91,6 +92,10 @@ public class AccessService {
             .orElseThrow(() -> new ResourceNotFoundException("Property not found."));
 
         AccessId accessId = new AccessId(user.getId(), property.getId());
+
+        if(accessRepository.existsById(accessId)) {
+            throw new BusinessException("User already has access to this property.");
+        }
 
         Access newAccess = toEntity(dto, user, property, accessId);
 

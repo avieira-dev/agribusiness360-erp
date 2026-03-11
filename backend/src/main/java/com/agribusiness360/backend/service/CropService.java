@@ -49,14 +49,12 @@ public class CropService {
    }
 
    /** 
-    *   Convert DTO to entity
+    *   Updates entity data based on DTO (JPA Inheritance)
     */
-   private Crop toEntity(CropRequestDTO dto, Plot plot) {
-        Crop crop = new Crop();
-
-        crop.setPlot(plot);
+   private void updateEntityFromDto(Crop crop, CropRequestDTO dto, Plot plot) {
         crop.setBasePrice(dto.basePrice());
         crop.setProductStatus(dto.productStatus());
+        crop.setPlot(plot);
         crop.setName(dto.name());
         crop.setExpectedYield(dto.expectedYield());
         crop.setCultureType(dto.cultureType());
@@ -64,16 +62,14 @@ public class CropService {
         crop.setStatus(dto.status());
         crop.setPlantDate(dto.plantDate());
         crop.setHarvestDate(dto.harvestDate());
-
-        return crop;
    }
 
    /**
-    *   Business validations for creation and updating
+    *   Business validations
     */
-   private void validateCropData(CropRequestDTO dto) {
+    private void validateCropData(CropRequestDTO dto) {
         if(dto.specificCulture() == null || dto.specificCulture().isBlank()) {
-            throw new BusinessException("The field of specific culture cannot be empty.");
+            throw new BusinessException("Specific culture field cannot be empty.");
         }
 
         if(dto.expectedYield() != null && dto.expectedYield().compareTo(BigDecimal.ZERO) < 0) {
@@ -85,18 +81,14 @@ public class CropService {
                 throw new BusinessException("Harvest date cannot be before plant date.");
             }
         }
-
-        if(dto.basePrice() != null && dto.basePrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("The base price cannot be negative.");
-        }
-   }
+    }
 
     /**
      *  Retrieves all crops
      */
     @Transactional(readOnly = true)
     public List<CropResponseDTO> getAllCrops() {
-        return cropRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
+        return cropRepository.findAllWithPlot().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
@@ -108,7 +100,7 @@ public class CropService {
             throw new ResourceNotFoundException("No plot found with the ID provided.");
         }
 
-        return cropRepository.findByPlotId(plotId).stream().map(this::toResponse).collect(Collectors.toList());
+        return cropRepository.findByPlotIdWithFetch(plotId).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
@@ -116,11 +108,13 @@ public class CropService {
      */
     @Transactional(readOnly = true)
     public List<CropResponseDTO> getCropByName(String name) {
-        if(cropRepository.findByNameContainingIgnoreCase(name).isEmpty()) {
+        List<Crop> crops = cropRepository.findByNameContainingIgnoreCase(name);
+
+        if(crops.isEmpty()) {
             throw new BusinessException("No crops found with this name.");
         }
 
-        return cropRepository.findByNameContainingIgnoreCase(name).stream().map(this::toResponse).collect(Collectors.toList());
+        return crops.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /**
@@ -181,11 +175,12 @@ public class CropService {
     @Transactional
     public CropResponseDTO saveCrop(CropRequestDTO dto) {
         Plot plot = plotRepository.findById(dto.plotId())
-            .orElseThrow(() -> new ResourceNotFoundException("No plots were found with the provided ID."));
+            .orElseThrow(() -> new ResourceNotFoundException("No plot found with ID: " + dto.plotId()));
 
         validateCropData(dto);
 
-        Crop crop = toEntity(dto, plot);
+        Crop crop = new Crop();
+        updateEntityFromDto(crop, dto, plot);
 
         return toResponse(cropRepository.save(crop));
     }
@@ -196,10 +191,10 @@ public class CropService {
     @Transactional
     public CropResponseDTO updateCrop(Integer id, CropRequestDTO dto) {
         Crop existingCrop = cropRepository.findById(id)
-            .orElseThrow(()-> new ResourceNotFoundException("Crop not found with the provided ID."));
+            .orElseThrow(()-> new ResourceNotFoundException("Crop not found with ID: " + id));
 
         Plot plot = plotRepository.findById(dto.plotId())
-            .orElseThrow(() -> new ResourceNotFoundException("No plot were found with that ID."));
+            .orElseThrow(() -> new ResourceNotFoundException("No plot found with ID: " + dto.plotId()));
 
         if(!existingCrop.getPlot().getId().equals(plot.getId())) {
             throw new BusinessException("The crop cannot be moved to another plot.");
@@ -207,11 +202,9 @@ public class CropService {
 
         validateCropData(dto);
 
-        Crop crop = toEntity(dto, plot);
+        updateEntityFromDto(existingCrop, dto, plot);
 
-        crop.setId(id);
-
-        return toResponse(cropRepository.save(crop));
+        return toResponse(cropRepository.save(existingCrop));
     }
 
     /**
@@ -222,7 +215,6 @@ public class CropService {
         if(!cropRepository.existsById(id)) {
             throw new ResourceNotFoundException("Cannot delete: Crop record not found.");
         }
-
         cropRepository.deleteById(id);
     }
 }

@@ -32,29 +32,16 @@ public class ProductService {
     }
 
     /**
-     *  Convert DTO to entity
-     */
-    private Product toEntity(ProductRequestDTO dto) {
-        Product product = new Product();
-
-        product.setProductStatus(dto.productStatus());
-        product.setBasePrice(dto.basePrice());
-
-        return product;
-    }
-
-    /**
      *  Performs business validations on product data
      */
    private void validateProductData(ProductRequestDTO dto) {
-
-        if(dto.basePrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Base price cannot be negative.");
+        if (dto.basePrice() == null || dto.basePrice().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessException("Base price cannot be null or negative.");
         }
    }
 
     /**
-     *  Retrieves all products
+     *  Retrieves all products (animals and crops)
      */
     @Transactional(readOnly = true)
     public List<ProductResponseDTO> getAllProducts() {
@@ -96,33 +83,19 @@ public class ProductService {
     }
 
     /**
-     *  Saves a new product
-     */
-    @Transactional
-    public ProductResponseDTO saveProduct(ProductRequestDTO dto) {
-        validateProductData(dto);
-
-        Product newProduct = toEntity(dto);
-
-        return toResponse(productRepository.save(newProduct));
-    }
-
-    /**
-     *  Update existing product
+     *  Updates common product fields (status and price)
      */
     @Transactional
     public ProductResponseDTO updateProduct(Integer id, ProductRequestDTO dto) {
-        if(!productRepository.existsById(id)) {
-            throw new ResourceNotFoundException("There is no product registered with the provided ID.");
-        }
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
 
         validateProductData(dto);
 
-        Product updatedProduct = toEntity(dto);
+        product.setProductStatus(dto.productStatus());
+        product.setBasePrice(dto.basePrice());
 
-        updatedProduct.setId(id);
-
-        return toResponse(productRepository.save(updatedProduct));
+        return toResponse(productRepository.save(product));
     }
 
     /**

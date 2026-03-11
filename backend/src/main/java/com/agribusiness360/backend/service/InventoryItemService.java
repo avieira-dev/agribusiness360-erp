@@ -82,7 +82,7 @@ public class InventoryItemService {
      */
     @Transactional(readOnly = true)
     public List<InventoryItemResponseDTO> getAllItems() {
-        return inventoryItemRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
+        return inventoryItemRepository.findAllWithProperty().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /** 

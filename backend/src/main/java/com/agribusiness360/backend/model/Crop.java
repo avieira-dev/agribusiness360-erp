@@ -54,4 +54,9 @@ public class Crop extends Product {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Override
+    public String getDisplayName() {
+        return this.getName() + " / " + this.getCultureType();
+    }
 }

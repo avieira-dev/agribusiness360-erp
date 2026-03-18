@@ -1,23 +1,27 @@
 # Agribusiness360 ERP
 
-## Project Status
-**In development** (Project currently in its early stages, focusing on architecture definition and core implementation).
+> A modular ERP system for agribusiness management, focused on scalability and clean architecture.
+
+![status](https://img.shields.io/badge/status-in%20development-orange)
+![backend](https://img.shields.io/badge/backend-Spring%20Boot-green)
+![frontend](https://img.shields.io/badge/frontend-Vue.js-42b883)
+![license](https://img.shields.io/badge/license-MIT-blue)
 
 ## Table of Contents
 - [Overview](#overview)
-- [Project Object](#project-objective)
+- [Project Objective](#project-objective)
 - [Initial Scope (MVP)](#initial-scope-mvp)
 - [Technologies Used](#technologies-used)
 - [Project Structure](#project-structure)
-- [Backend Configuration](#backend-configuration)
+- [Getting Started](#getting-started)
 - [Developer](#developer)
 - [Observations](#observations)
 - [License](#license)
 
 ## Overview
-`Agribusiness360 ERP` is an agribusiness-oriented enterprise resource planning system developed as a `demonstrative and study project`, focusing on domain modeling, fullstack architecture, and software engineering best practices applied to the agricultural context.
+**Agribusiness360 ERP** is an agribusiness-oriented enterprise resource planning system developed as a **portfolio-driven project**, focusing on domain modeling, fullstack architecture, and software engineering best practices applied to the agricultural context.
 
-The system is designed to be `modular and extensible`, allowing gradual expansion of features as the project evolves and new concepts are explored.
+The system is designed to be **modular and extensible**, allowing gradual expansion of features as the project evolves and new concepts are explored.
 
 ## Project Objective
 This project aims to:
@@ -34,16 +38,18 @@ The initial MVP includes:
 - Crop season control
 - Operational cost tracking and analysis
 
-Additional features may be added in the future, such as inventory control, suppliers, analytical reports, and external integrations.
+> [!NOTE]  
+> Additional features may be added in the future, such as suppliers,  
+> analytical reports, and external integrations.
 
 ## Technologies Used
-**Backend**
+### Backend
 - Java
 - Spring Boot
 - JPA and Hibernate
 - MySQL
 
-**Frontend**
+### Frontend
 - Vue.js
 - Vue Router
 - Axios
@@ -60,11 +66,11 @@ agribusiness360-erp/
 │   └── physical/
 ├── .gitignore 
 ├── LICENSE 
-└── README.md # Main documentation
+└── README.md
 ```
 
-## Backend Configuration
-To run the backend application, you must manually create the application.properties file with your local database credentials.
+## Getting Started
+To run the backend, create an application.properties file with your local database credentials.
 
 ### File Location
 Create the file at the following path:
@@ -72,7 +78,7 @@ Create the file at the following path:
 backend/src/main/resources/application.properties
 ```
 
-### Required configuration
+### Configuration
 To run the backend, you need to configure the database connection.
 
 1. Create a file named `application.properties` in `backend/src/main/resources/`.
@@ -93,18 +99,19 @@ spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 ```
 
-### Important Notes
-- This file must not be committed to the repository.
-- Make sure application.properties is listed in .gitignore.
-- The database db_agribusiness must exist before running the application.
-- MySQL must be running locally.
-- On Linux/macOS, you may need to grant execute permission to the Maven Wrapper:
+> [!NOTE]
+> - This file must not be committed to the repository
+> - Make sure application.properties is listed in .gitignore
+> - The database db_agribusiness must exist before running the application
+> - MySQL must be running locally
+
+**On Linux/macOS, you may need to grant execute permission to the Maven Wrapper:**
 ```bash
 chmod +x mvnw
 ```
 
 ## Developer
-**avieira-dev**
+Alexandre Vieira (**avieira-dev**)
 
 ## Observations
 - This project is under development.

@@ -7,6 +7,9 @@
 ![frontend](https://img.shields.io/badge/frontend-Vue.js-42b883)
 ![license](https://img.shields.io/badge/license-MIT-blue)
 
+> [!NOTE]
+> Designed as a learning tool and a foundation for future expansion
+
 ## Table of Contents
 - [Overview](#overview)
 - [Project Objective](#project-objective)
@@ -111,11 +114,8 @@ chmod +x mvnw
 ```
 
 ## Developer
-Alexandre Vieira (**avieira-dev**)
-
-## Observations
-- This project is under development.
-- Designed as a learning tool and a foundation for future expansion.
+**Alexandre Vieira**  
+GitHub: [@avieira-dev](https://github.com/avieira-dev)
 
 ## License
-[MIT License](LICENSE)
+Distributed under the license [MIT License](LICENSE). See the **LICENSE** file for more details.

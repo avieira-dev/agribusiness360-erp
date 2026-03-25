@@ -18,7 +18,6 @@
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [Developer](#developer)
-- [Observations](#observations)
 - [License](#license)
 
 ## Overview

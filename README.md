@@ -47,15 +47,18 @@ The initial MVP includes:
 ## Technologies Used
 ### Backend
 - Java
-- Spring Boot
-- JPA and Hibernate
-- MySQL
+- Spring Boot (Backend Framework)
+- JPA and Hibernate (ORM)
+- MySQL (DBMS)
 
 ### Frontend
-- Vue.js
-- Vue Router
-- Axios
-- Tailwind CSS
+- Vue.js 3 (Composition API)
+- TypeScript
+- Vite (Build Tool)
+- Pinia (State Management)
+- Vue Router (Navigation)
+- Axios (HTTP Client)
+- Tailwind CSS (Styling)
 
 ## Project Structure
 ```text
@@ -72,27 +75,31 @@ agribusiness360-erp/
 ```
 
 ## Getting Started
-To run the backend, create an application.properties file with your local database credentials.
 
-### File Location
-Create the file at the following path:
-```text
-backend/src/main/resources/application.properties
-```
+### Prerequisites
+- Java 17 or higher
+- Node.js (v18+) and npm
+- MySQL Server
 
-### Configuration
-To run the backend, you need to configure the database connection.
+### Backend Setup (Spring Boot)
 
-1. Create a file named `application.properties` in `backend/src/main/resources/`.
-2. Add the following content and replace `USER` and `PASSWORD` with your local MySQL credentials:
+1. **Database Configuration**
+
+Create a file named `application.properties` in `backend/src/main/resources/`.
+
+> [!IMPORTANT]
+> - This file must not be committed to the repository
+> - Make sure application.properties is listed in .gitignore
+> - The database db_agribusiness must exist before running the application
+> - MySQL must be running locally
 
 ```properties
 spring.application.name=backend
 spring.datasource.url=jdbc:mysql://localhost:3306/db_agribusiness?serverTimezone=UTC&useSSL=false
 
 # Replace USER and PASSWORD with your local credentials
-spring.datasource.username=USER
-spring.datasource.password=PASSWORD
+spring.datasource.username=YOUR_USER
+spring.datasource.password=YOUR_PASSWORD
 
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.jpa.hibernate.ddl-auto=update
@@ -101,16 +108,52 @@ spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 ```
 
-> [!NOTE]
-> - This file must not be committed to the repository
-> - Make sure application.properties is listed in .gitignore
-> - The database db_agribusiness must exist before running the application
-> - MySQL must be running locally
+2. **Run the Application**
+
+```bash
+cd backend
+# Linux/macOS
+./mvnw spring-boot:run
+# Windows
+mvnw.cmd spring-boot:run
+```
 
 **On Linux/macOS, you may need to grant execute permission to the Maven Wrapper:**
 ```bash
 chmod +x mvnw
 ```
+
+### Frontend Setup
+
+1. **Install Dependencies**
+
+Navigate to the frontend folder and install all necessary modules (including Axios, Router, Pinia, and Tailwind):
+
+```bash
+cd frontend
+npm install
+```
+
+2. **Manual Installation**
+
+If you are setting up a new environment and need to ensure all modules are present:
+
+```bash
+# Core dependencies
+npm install axios vue-router pinia
+
+# Styling (Tailwind CSS)
+npm install tailwindcss @tailwindcss/vite
+```
+
+3. **Run for Development**
+
+```bash
+npm run dev
+```
+
+> [!TIP]
+> The application will be available at http://localhost:5173.
 
 ## Developer
 **Alexandre Vieira**  

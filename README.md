@@ -7,7 +7,7 @@
 ![frontend](https://img.shields.io/badge/frontend-Vue.js-42b883)
 ![license](https://img.shields.io/badge/license-MIT-blue)
 
-> [!NOTE]
+> [!NOTE]  
 > Designed as a learning tool and a foundation for future expansion
 
 ## Table of Contents
@@ -152,8 +152,14 @@ npm install tailwindcss @tailwindcss/vite
 npm run dev
 ```
 
-> [!TIP]
+> [!NOTE]  
 > The application will be available at http://localhost:5173.
+
+> [!TIP]    
+> **Keep your dependencies secure:**   
+> It is a best practice to periodically run `npm audit` in the `frontend` folder to check for known 
+> vulnerabilities in your packages.   
+> If issues are found, you can often fix them automatically by running `npm audit fix`.
 
 ## Developer
 **Alexandre Vieira**  

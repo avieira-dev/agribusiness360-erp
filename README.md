@@ -2,10 +2,12 @@
 
 > A modular ERP system for agribusiness management, focused on scalability and clean architecture.
 
-![status](https://img.shields.io/badge/status-in%20development-orange)
-![backend](https://img.shields.io/badge/backend-Spring%20Boot-green)
-![frontend](https://img.shields.io/badge/frontend-Vue.js-42b883)
-![license](https://img.shields.io/badge/license-MIT-blue)
+<p align="center">
+  <img src="https://img.shields.io/badge/status-in%20development-f39c12"/>
+  <img src="https://img.shields.io/badge/backend-Spring%20Boot-6DB33F"/>
+  <img src="https://img.shields.io/badge/frontend-Vue.js-42b883"/>
+  <img src="https://img.shields.io/badge/license-MIT-6e7781"/>
+</p>
 
 > [!NOTE]  
 > Designed as a learning tool and a foundation for future expansion

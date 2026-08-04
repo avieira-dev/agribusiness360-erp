@@ -25,7 +25,7 @@
 - [Technical Stack](#technical-stack)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
-- [Developer](#developer)
+- [Author](#author)
 - [License](#license)
 
 ---
@@ -181,9 +181,9 @@ The application will be available at `http://localhost:5173`.
 
 ---
 
-## Developer
+## Author
 
-**Alexandre Vieira**
+**Alexandre Vieira**  
 GitHub: [@avieira-dev](https://github.com/avieira-dev)
 
 ---

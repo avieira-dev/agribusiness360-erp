@@ -18,18 +18,6 @@
 
 ---
 
-## Table of Contents
-
-- [Overview](#overview)
-- [MVP Scope](#mvp-scope)
-- [Technical Stack](#technical-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Author](#author)
-- [License](#license)
-
----
-
 ## Overview
 
 **Agribusiness360 ERP** is a portfolio-driven enterprise resource planning system oriented to the agricultural domain. It focuses on domain modeling, fullstack architecture, and software engineering best practices applied to an agribusiness context.
@@ -41,15 +29,26 @@ The system is designed to be modular and extensible, allowing gradual expansion 
 
 ---
 
+## Table of Contents
+
+- [MVP Scope](#mvp-scope)
+- [Technical Stack](#technical-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Author](#author)
+- [License](#license)
+
+---
+
 ## MVP Scope
 
-| Module | Description |
-|---|---|
-| Rural Properties | Registration and management of rural properties |
-| Productive Areas | Field and productive area management |
-| Inputs | Supply and input inventory control |
-| Crop Seasons | Crop cycle tracking and control |
-| Operational Costs | Cost tracking and basic analysis |
+| Module            | Description                                     |
+|-------------------|-------------------------------------------------|
+| Rural Properties  | Registration and management of rural properties |
+| Productive Areas  | Field and productive area management            |
+| Inputs            | Supply and input inventory control              |
+| Crop Seasons      | Crop cycle tracking and control                 |
+| Operational Costs | Cost tracking and basic analysis                |
 
 Additional features planned for future iterations include supplier management, analytical reports, and external integrations.
 
@@ -59,24 +58,24 @@ Additional features planned for future iterations include supplier management, a
 
 ### Backend
 
-| Technology | Role |
-|---|---|
-| Java 17 | Primary language |
-| Spring Boot | Backend framework |
-| JPA & Hibernate | ORM layer |
-| MySQL | Database |
+| Technology      | Role              |
+|-----------------|-------------------|
+| Java 17         | Primary language  |
+| Spring Boot     | Backend framework |
+| JPA & Hibernate | ORM layer         |
+| MySQL           | Database          |
 
 ### Frontend
 
-| Technology | Role |
-|---|---|
-| Vue.js 3 (Composition API) | UI framework |
-| TypeScript | Language |
-| Vite | Build tool |
-| Pinia | State management |
-| Vue Router | Client-side navigation |
-| Axios | HTTP client |
-| Tailwind CSS | Styling |
+| Technology                 | Role                   |
+|----------------------------|------------------------|
+| Vue.js 3 (Composition API) | UI framework          |
+| TypeScript                 | Language               |
+| Vite                       | Build tool             |
+| Pinia                      | State management       |
+| Vue Router                 | Client-side navigation |
+| Axios                      | HTTP client            |
+| Tailwind CSS               | Styling                |
 
 ---
 
@@ -101,10 +100,10 @@ agribusiness360-erp/
 
 ### Prerequisites
 
-| Dependency | Version |
-|---|---|
-| Java | 17 or higher |
-| Node.js & npm | v18+ |
+| Dependency   | Version       |
+|--------------|---------------|
+| Java         | 17 or higher  |
+| Node.js & npm| v18+          |
 | MySQL Server | Latest stable |
 
 ---
